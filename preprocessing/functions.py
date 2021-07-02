@@ -49,19 +49,19 @@ def readImages(config: PipeConfig, input: ImageDataFrame, testSize=0.2) -> Image
     # logic here
     classes = [
         "AKK_ASTA",
-        # "Alte_Bib",
-        # "Audimax",
-        # "Gruenderschmiede",
-        # "Haber_Bosch",
-        # "Kolben",
-        # "Kopf",
-        # "Lernzentrum",
-        # "Mathebau",
-        # "Mensa",
-        # "Neue_Bib",
-        # "Soldat",
-        # "Studierendenwerk",
-        # "Waermflasche",
+        "Alte_Bib",
+        "Audimax",
+        "Gruenderschmiede",
+        "Haber_Bosch",
+        "Kolben",
+        "Kopf",
+        "Lernzentrum",
+        "Mathebau",
+        "Mensa",
+        "Neue_Bib",
+        "Soldat",
+        "Studierendenwerk",
+        "Waermflasche",
     ]
     df = ImageDataFrame()
 
