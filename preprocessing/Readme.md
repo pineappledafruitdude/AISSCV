@@ -1,7 +1,10 @@
 # Install
 
 Python Version used: 3.9.5
-You **MUST** be in the preprocessing folder in your terminal
+
+<div style="color:red; margin-bottom: 20px; text-align:center; font-weight: bold; padding: 5px; background: #e5e5e5">
+You MUST be in the preprocessing folder in your terminal
+</div>
 
 1. Create venv
 
