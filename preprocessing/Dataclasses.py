@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Any, Callable, Optional, TYPE_CHECKING
 from pathlib import Path
 import pandas as pd
 from albumentations.core.composition import Compose
@@ -62,3 +62,28 @@ class PipeConfig:
         self.transform = transform
         self.train_txt = Path(self.outputFolder, "train.txt")
         self.test_txt = Path(self.outputFolder, "test.txt")
+
+
+class ImageDataFrame:
+    """Wrapper around a dataframe to provide consistent data passing between functions
+    """
+    frame: pd.Datafram
+
+    def __init__(self, df: Optional[pd.DataFrame] = None) -> None:
+        if isinstance(df, pd.DataFrame):
+            self.frame = df
+        else:
+            self.frame = pd.DataFrame(
+                columns=["stem", "img_file", "label_file", "class"])
+
+    def addImg(self, img_path: Path, label_path: Path, img_class: str):
+        """Add an image to the dataframe. Img and txt path are converted to absolutes
+
+        Args:
+            img_path (Path): Path to the image
+            txt_path (Path): The path to the label
+            img_class (str): The image class
+        """
+        row = [img_path.stem, img_path.absolute(), label_path.absolute(),
+               img_class]
+        self.frame.loc[len(self.frame)] = row

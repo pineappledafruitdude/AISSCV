@@ -1,5 +1,6 @@
+from __future__ import annotations
 from pandas.core.frame import DataFrame
-from Dataclasses import PipeConfig
+from Dataclasses import ImageDataFrame, PipeConfig
 import sys
 from pathlib import Path
 from typing import List
@@ -152,16 +153,15 @@ def get_labels(filePath: Path) -> List[str]:
 # Image Augmentation
 
 
-def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path, fileStem: str, className: str) -> pd.DataFrame:
+def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path, file_stem: str, class_name: str) -> ImageDataFrame:
     transform = config.transform
 
-    augemented_df = pd.DataFrame(
-        columns=["stem", "img_file", "txt_file", "class"])
+    output_df = ImageDataFrame()
 
     for j in range(config.numberOfAugmentations):
-        output_img = Path(output_path, fileStem +
+        output_img = Path(output_path, file_stem +
                           "_transformed_"+str(j+1) + ".jpg")
-        output_txt = Path(output_path, fileStem + "_transformed_" +
+        output_txt = Path(output_path, file_stem + "_transformed_" +
                           str(j+1) + ".txt")
 
         while True:
@@ -207,13 +207,16 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
         transformed_df = transformed_df[0:0]
 
         # Add augmented img to df
-        row = [fileStem, output_img.absolute(), output_txt.absolute(),
-               className]
-        add_to_df(augemented_df, row)
-    return augemented_df
+        output_df.addImg(
+            img_path=output_img,
+            label_path=output_txt,
+            img_class=class_name
+        )
+    return output_df
 
 
 def create_transform():
+    """Create the albumentation transform object"""
     transform = A.Compose(
         [
 
@@ -248,8 +251,3 @@ def create_transform():
         ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
 
     return transform
-
-
-def add_to_df(df: pd.DataFrame, row: List[str]):
-    """Add a row to a dataframe by mutating it"""
-    df.loc[len(df)] = row
