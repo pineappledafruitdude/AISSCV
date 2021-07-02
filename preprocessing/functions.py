@@ -37,7 +37,8 @@ def create_output_directories(config: PipeConfig, input: ImageDataFrame):
 def readImages(config: PipeConfig, input: ImageDataFrame, testSize=0.2) -> ImageDataFrame:
     """
         Read all images of the given input path and stores them in a DataFrame.
-        The DataFrame has two columns: ["stem", "img_file", "label_file", "class"]. 
+        The DataFrame has five columns: ["stem", "img_file", "label_file", "is_test", "class"]. 
+        In this stage of the pipeline the column 'is_test' is not relevant.
         The class refers to the first part of the images, NOT the label class (see below).
         [Example]
         Mensa_1.jpg  -->    stem: 'Mensa_1', 
@@ -170,8 +171,8 @@ def augment(config: PipeConfig, input: ImageDataFrame):
         file_stem: str = i[1].values[0]
         img_file: str = i[1].values[1]
         label_file: str = i[1].values[2]
-        class_name: str = i[1].values[3]
-        is_test: bool = i[1].values[4]
+        is_test: bool = i[1].values[3]
+        class_name: str = i[1].values[4]
 
         # This dataframe holds the image(s) that will be outputed to either the test.txt or train.txt
         output = ImageDataFrame()
