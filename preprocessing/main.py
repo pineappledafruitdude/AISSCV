@@ -24,7 +24,7 @@ def main(args):
     pipe.add(readImages)
 
     # 2. Resize images (if done once comment out)
-    # pipe.add(resize_images)
+    pipe.add(resize_images)
 
     # 3. Split the images in train & test images
     pipe.add(split)
