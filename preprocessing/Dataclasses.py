@@ -26,7 +26,6 @@ class PipelineFunction:
 
 
 class PipeConfig:
-
     inputFolder: Path
     outputFolder: Path
     outputImgSubFolder: Path
@@ -38,11 +37,12 @@ class PipeConfig:
     train_txt: Path
     test_txt: Path
 
-    def __init__(self, inputFolder: str, outputFolder: str, imgSubFolderName: str, resizedImgSize: int, finalImgSize: int, numberOfAugmentations: int, color: bool, transform: Compose) -> None:
+    def __init__(self, name: str, inputFolder: str, outputFolder: str, imgSubFolderName: str, resizedImgSize: int, finalImgSize: int, numberOfAugmentations: int, color: bool, transform: Compose) -> None:
         """
             Pipeline configuration class
 
             Args:
+                name (str): The name of the pipeline run. In the outputfolder a subfolder with this name will be created.
                 inputFolder (str): The folder where the original images are stored
                 outputFolder (str): The output folder of this pipeline run
                 imgSubFolderName ([type]): The name of the subfolder created within the outputFolder where the training images are stored
@@ -53,8 +53,8 @@ class PipeConfig:
                 transform (Compose): The albumentations transform variable
         """
         self.inputFolder = Path(inputFolder)
-        self.outputFolder = Path(outputFolder)
-        self.outputImgSubFolder = Path(outputFolder, imgSubFolderName)
+        self.outputFolder = Path(outputFolder, name)
+        self.outputImgSubFolder = Path(self.outputFolder, imgSubFolderName)
         self.resizedImgSize = resizedImgSize
         self.finalImgSize = finalImgSize
         self.numberOfAugmentations = numberOfAugmentations
