@@ -191,13 +191,18 @@ def augment(config: PipeConfig, input: ImageDataFrame):
         The test and train images are saved with their absolute path in the txt file.
         The train.txt or test.txt will be used for model training.
     """
+
+    number_of_images = len(input.frame.index)*(1+config.numberOfAugmentations)
+    pipePrint("Creating %i images" % number_of_images)
+
     # iterate in the df
-    for i in input.frame.iterrows():
-        file_stem: str = i[1].values[0]
-        img_file: str = i[1].values[1]
-        label_file: str = i[1].values[2]
-        is_test: bool = i[1].values[3]
-        class_name: str = i[1].values[4]
+    for i, row in enumerate(input.frame.iterrows()):
+        current_img_number = (i)*(1+config.numberOfAugmentations)
+        file_stem: str = row[1].values[0]
+        img_file: str = row[1].values[1]
+        label_file: str = row[1].values[2]
+        is_test: bool = row[1].values[3]
+        class_name: str = row[1].values[4]
 
         # This dataframe holds the image(s) that will be outputed to either the test.txt or train.txt
         output = ImageDataFrame()
@@ -217,18 +222,19 @@ def augment(config: PipeConfig, input: ImageDataFrame):
         if not is_test:
             # Read in label
             labels = get_labels(input_path_txt)
-
+            current_img_number += 10
             # Augment data with albumentations
-            pipePrint("Augmenting: File %s; #Labels %i; Class %s" %
-                      (file_stem, len(labels), class_name))
+            pipePrint("(%i/%i) Augmenting: File %s; #Labels %i; Class %s" %
+                      (current_img_number, number_of_images, file_stem, len(labels), class_name))
             augmented_df = augmentImage(config, image, labels,
                                         config.outputImgSubFolder, file_stem, class_name)
             # Add the augmented images to the output df
             output.frame = pd.concat([output.frame, augmented_df.frame])
 
         # Save original image (train & test) in appropriate scaling
-        pipePrint("Copying: Original %s File %s" %
-                  ("Test" if is_test else "", file_stem))
+        current_img_number += 1
+        pipePrint("(%i/%i) Copying: Original %s File %s" %
+                  (current_img_number, number_of_images, "Test" if is_test else "", file_stem))
         image = cv2.resize(image, (config.finalImgSize, config.finalImgSize),
                            interpolation=cv2.INTER_NEAREST)
         cv2.imwrite(str(output_path_img), image)
