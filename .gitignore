@@ -144,3 +144,4 @@ cython_debug/
 !requirements.txt
 *.csv
 pyvenv.cfg
+*.data
