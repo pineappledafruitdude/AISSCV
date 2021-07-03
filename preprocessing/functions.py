@@ -215,7 +215,7 @@ def augment(config: PipeConfig, input: ImageDataFrame):
             labels = get_labels(input_path_txt)
 
             # Augment data with albumentations
-            pipePrint("Augmenting: File: %s; #Labels %i; Class %s" %
+            pipePrint("Augmenting: File %s; #Labels %i; Class %s" %
                       (file_stem, len(labels), class_name))
             augmented_df = augmentImage(config, image, labels,
                                         config.outputImgSubFolder, file_stem, class_name)
@@ -223,6 +223,8 @@ def augment(config: PipeConfig, input: ImageDataFrame):
             output.frame = pd.concat([output.frame, augmented_df.frame])
 
         # Save original image (train & test) in appropriate scaling
+        pipePrint("Copying: Original %s File %s" %
+                  ("Test" if is_test else "", file_stem))
         image = cv2.resize(image, (config.finalImgSize, config.finalImgSize),
                            interpolation=cv2.INTER_NEAREST)
         cv2.imwrite(str(output_path_img), image)
