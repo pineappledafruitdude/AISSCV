@@ -41,6 +41,10 @@ def create_darknet_data(config: PipeConfig, input: ImageDataFrame):
     """Creates the darknet data file"""
     numberOfClasses = count_lines(config.classes_txt)
     data_file = Path(config.outputFolder, "darknet.data")
+    copy_of_classes_txt = Path(
+        config.outputImgSubFolder, config.classes_txt.name)
+    # Copy the classes.txt to the img subfolder
+    shutil.copy(config.classes_txt, copy_of_classes_txt)
 
     if data_file.exists():
         data_file.unlink()
@@ -49,7 +53,7 @@ def create_darknet_data(config: PipeConfig, input: ImageDataFrame):
         f.write('classes = %i %s' % (numberOfClasses, os.linesep))
         f.write('train = %s %s' % (config.train_txt, os.linesep))
         f.write('valid = %s %s' % (config.test_txt, os.linesep))
-        f.write('names = %s %s' % (config.classes_txt, os.linesep))
+        f.write('names = %s %s' % (copy_of_classes_txt, os.linesep))
         f.write('backup = %s %s' % (config.outputFolder, os.linesep))
 
     return input
