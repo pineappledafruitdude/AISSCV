@@ -1,6 +1,6 @@
 from __future__ import annotations
 from Dataclasses import ImageDataFrame
-from util import augmentImage, clear_folder, get_labels, pipePrint, mkdir
+from util import augmentImage, clear_folder, count_lines, get_labels, pipePrint, mkdir
 from pathlib import Path
 import shutil
 from typing import TYPE_CHECKING
@@ -8,6 +8,7 @@ import pandas as pd
 import cv2
 from sklearn.model_selection import train_test_split
 import numpy as np
+import os
 
 if TYPE_CHECKING:
     from Dataclasses import PipeConfig
@@ -26,12 +27,32 @@ def clear_output_folder(config: PipeConfig, input: ImageDataFrame):
     """Clears the output folders"""
     clear_folder(config.outputFolder)
     pipePrint("Output Folder cleared")
+    return input
 
 
 def create_output_directories(config: PipeConfig, input: ImageDataFrame):
     """Create the output directories (output and img output)"""
     mkdir(Path(config.outputFolder))
     mkdir(Path(config.outputImgSubFolder))
+    return input
+
+
+def create_darknet_data(config: PipeConfig, input: ImageDataFrame):
+    """Creates the darknet data file"""
+    numberOfClasses = count_lines(config.classes_txt)
+    data_file = Path(config.outputFolder, "darknet.data")
+
+    if data_file.exists():
+        data_file.unlink()
+
+    with open(Path(config.outputFolder, "darknet.data"), 'a') as f:
+        f.write('classes = %i %s' % (numberOfClasses, os.linesep))
+        f.write('train = %s %s' % (config.train_txt, os.linesep))
+        f.write('valid = %s %s' % (config.test_txt, os.linesep))
+        f.write('names = %s %s' % (config.classes_txt, os.linesep))
+        f.write('backup = %s %s' % (config.outputFolder, os.linesep))
+
+    return input
 
 
 def readImages(config: PipeConfig, input: ImageDataFrame, testSize=0.2) -> ImageDataFrame:
@@ -183,7 +204,10 @@ def augment(config: PipeConfig, input: ImageDataFrame):
         output_path_txt = Path(config.outputImgSubFolder, file_stem + ".txt")
 
         # Read the image
-        image = cv2.imread(str(input_path_img), cv2.IMREAD_GRAYSCALE)
+        if config.color is True:
+            image = cv2.imread(str(input_path_img), cv2.IMREAD_UNCHANGED)
+        else:
+            image = cv2.imread(str(input_path_img), cv2.IMREAD_GRAYSCALE)
 
         # Apply augmentation if the image is not a test image
         if not is_test:

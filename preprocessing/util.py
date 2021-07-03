@@ -251,3 +251,14 @@ def create_transform():
         ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
 
     return transform
+
+
+def count_lines(txt_file: Path) -> int:
+    """Count lines in a txt file"""
+    lines = 0
+    with open(txt_file, 'r') as f:
+        for line in f:
+            if line != "\n":
+                lines += 1
+
+    return lines

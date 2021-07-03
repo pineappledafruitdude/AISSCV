@@ -41,12 +41,13 @@ python3 main.py -n "The name of the run"
 
 The following arguments can be passed when calling `python3 main.py`:
 
-| arg | Long          | Description                                                                                   |
-| --- | ------------- | --------------------------------------------------------------------------------------------- |
-| -n  | Name          | Name of this pipeline run. A subfolder with this name will be created in the output directory |
-| -i  | Input Folder  | Path where the original images are stored. Default to "./data" $12                            |
-| -o  | Output Folder | Path where the results of this pipeline run are stored. Default to "./output"                 |
-| -c  | Color         | Whether the images are colored or greyscaled                                                  |
+| arg  | Long                 | Description                                                                                   |
+| ---- | -------------------- | --------------------------------------------------------------------------------------------- |
+| -n   | Name                 | Name of this pipeline run. A subfolder with this name will be created in the output directory |
+| -i   | Input Folder         | Path where the original images are stored. Default to "./data"                                |
+| -cls | Darknet classes file | Full path to the darknet classes file. E.g. "./data/classes.txt"                              |
+| -o   | Output Folder        | Path where the results of this pipeline run are stored. Default to "./output"                 |
+| -c   | Color                | Whether the images are colored or greyscaled                                                  |
 
 ## Other options
 

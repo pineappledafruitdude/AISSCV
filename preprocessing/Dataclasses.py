@@ -36,8 +36,9 @@ class PipeConfig:
     transform: Compose
     train_txt: Path
     test_txt: Path
+    classes_txt: Path
 
-    def __init__(self, name: str, inputFolder: str, outputFolder: str, imgSubFolderName: str, resizedImgSize: int, finalImgSize: int, numberOfAugmentations: int, color: bool, transform: Compose) -> None:
+    def __init__(self, name: str, inputFolder: str, outputFolder: str, imgSubFolderName: str, resizedImgSize: int, finalImgSize: int, numberOfAugmentations: int, color: bool, transform: Compose, classes_txt: str) -> None:
         """
             Pipeline configuration class
 
@@ -51,17 +52,20 @@ class PipeConfig:
                 numberOfAugmentations (int): The number of augmentations per image
                 color (bool): Should color be included?
                 transform (Compose): The albumentations transform variable
+                classes_txt (str): Full path to the classes.txt file including the filename e.g. '/Path/classes.txt'
         """
-        self.inputFolder = Path(inputFolder)
-        self.outputFolder = Path(outputFolder, name)
-        self.outputImgSubFolder = Path(self.outputFolder, imgSubFolderName)
+        self.inputFolder = Path(inputFolder).absolute()
+        self.outputFolder = Path(outputFolder, name).absolute()
+        self.outputImgSubFolder = Path(
+            self.outputFolder, imgSubFolderName).absolute()
         self.resizedImgSize = resizedImgSize
         self.finalImgSize = finalImgSize
         self.numberOfAugmentations = numberOfAugmentations
         self.color = color
         self.transform = transform
-        self.train_txt = Path(self.outputFolder, "train.txt")
-        self.test_txt = Path(self.outputFolder, "test.txt")
+        self.train_txt = Path(self.outputFolder, "train.txt").absolute()
+        self.test_txt = Path(self.outputFolder, "test.txt").absolute()
+        self.classes_txt = Path(classes_txt).absolute()
 
 
 class ImageDataFrame:

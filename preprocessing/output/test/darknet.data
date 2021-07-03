@@ -1,0 +1,5 @@
+classes = 14 
+train = /Users/chris/dev/uni/vision/AISS_CV/preprocessing/output/test/train.txt 
+valid = /Users/chris/dev/uni/vision/AISS_CV/preprocessing/output/test/test.txt 
+names = /Users/chris/dev/uni/vision/AISS_CV/preprocessing/data/classes.txt 
+backup = /Users/chris/dev/uni/vision/AISS_CV/preprocessing/output/test 
