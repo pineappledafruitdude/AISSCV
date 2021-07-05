@@ -39,7 +39,7 @@ python3 main.py -n "The name of the run"
 
 ## Arguments
 
-The following arguments can be passed when calling `python3 main.py`:
+The following arguments can be passed when calling `python3 main.py -n "Name" -cls ./data/classes.txt`:
 
 | arg  | Long                 | Description                                                                                   |
 | ---- | -------------------- | --------------------------------------------------------------------------------------------- |
