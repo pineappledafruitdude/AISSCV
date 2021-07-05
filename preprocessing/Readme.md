@@ -59,3 +59,5 @@ The following other options can be configured in the file `main.py`:
 | resizedImgSize        | The size of the images before the augmentation is applied. Actually the original images in the inputfolder are cropped in place before the augmentation starts centered                                   |
 | finalImgSize          | The image size after the pipeline is done. Applies to all train & test images.                                                                                                                            |
 | numberOfAugmentations | The number of augmentations per image                                                                                                                                                                     |
+
+x
