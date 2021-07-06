@@ -1,6 +1,7 @@
 import argparse
 import re
 from pathlib import Path
+import shutil
 
 
 def create_cfg(args):
@@ -14,7 +15,7 @@ def create_cfg(args):
     step2 = 0.9 * max_batch
 
     num_filters = (num_classes + 5) * 3
-
+    shutil.copy(cfg_file, Path("our-"+cfg_file.name))
     with open(cfg_file) as f:
         s = f.read()
 
@@ -34,8 +35,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocessing Pipeline')
     parser.add_argument('-b', metavar='max batch', type=int, default=3000,
                         help='Max batch')
-    parser.add_argument('-cfg', metavar='darknet config file', required=True, type=str,
-                        help='darknet.data path')
+    parser.add_argument('-cfg', metavar='yolovX config file', type=str, default="./darknet_cfgs/yolov4-tiny-custom.cfg",
+                        help='yolov4-tiny-custom.cfg')
 
     args = parser.parse_args()
     create_cfg(args)
