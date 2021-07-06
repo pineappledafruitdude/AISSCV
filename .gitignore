@@ -145,3 +145,4 @@ cython_debug/
 *.csv
 pyvenv.cfg
 *.data
+model/*.cfg

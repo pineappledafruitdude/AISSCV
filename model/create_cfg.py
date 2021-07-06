@@ -15,8 +15,8 @@ def create_cfg(args):
     step2 = 0.9 * max_batch
 
     num_filters = (num_classes + 5) * 3
-    shutil.copy(cfg_file, Path("our-"+cfg_file.name))
-    with open(cfg_file) as f:
+    new_cfg_file = shutil.copy(cfg_file, Path("our-"+cfg_file.name))
+    with open(new_cfg_file) as f:
         s = f.read()
 
     s = re.sub('max_batches = \d*', 'max_batches = '+str(max_batch), s)
@@ -26,7 +26,7 @@ def create_cfg(args):
     s = re.sub('pad=1\nfilters=\d*', 'pad=1\nfilters=' +
                "{:.0f}".format(num_filters), s)
 
-    with open(cfg_file, 'w') as f:
+    with open(new_cfg_file, 'w') as f:
         f.write(s)
 
 
