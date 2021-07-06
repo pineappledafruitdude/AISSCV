@@ -19,6 +19,7 @@ def create_cfg(args):
     with open(new_cfg_file) as f:
         s = f.read()
 
+    s = re.sub('channels=\d*', 'channels='+str(3 if args.c else 1), s)
     s = re.sub('max_batches = \d*', 'max_batches = '+str(max_batch), s)
     s = re.sub('steps=\d*,\d*', 'steps=' +
                "{:.0f}".format(step1)+','+"{:.0f}".format(step2), s)
@@ -37,6 +38,8 @@ if __name__ == '__main__':
                         help='Max batch')
     parser.add_argument('-cfg', metavar='yolovX config file', type=str, default="./darknet_cfgs/yolov4-tiny-custom.cfg",
                         help='yolov4-tiny-custom.cfg')
+    parser.add_argument('-c', metavar='cpolor', type=bool, default=False,
+                        help='colored images')
 
     args = parser.parse_args()
     create_cfg(args)
