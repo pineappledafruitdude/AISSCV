@@ -66,9 +66,10 @@ WORKDIR /
 RUN git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv
 WORKDIR /aisscv/model
 RUN python3.8 create_cfg.py
+WORKDIR /aisscv/preprocessing
 RUN python3.8 main.py -n "run_1" -cls "./data/classes.txt" -o "/aisscv/model"
 
 WORKDIR /darknet
 RUN wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29
 # Sets up the entry point to invoke the trainer.
-RUN ./darknet detector train /aisscv/model/run_1/darknet.data /root/aisscv/our-model-yolov4-tiny.cfg yolov4-tiny.conv.29 -dont_show > /aisscv/model/run_1/train.log && gsutil cp /aisscv/model/run_1/weights gs://aisscv/
+ENTRYPOINT ./darknet detector train /aisscv/model/run_1/darknet.data /aisscv/model/our-yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -dont_show && gsutil cp /aisscv/model/run_1/weights gs://aisscv/
