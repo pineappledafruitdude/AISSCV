@@ -1,5 +1,6 @@
 from __future__ import annotations
 from Dataclasses import ImageDataFrame
+import re
 from util import augmentImage, clear_folder, count_lines, get_labels, pipePrint, mkdir
 from pathlib import Path
 import shutil
@@ -40,7 +41,7 @@ def create_output_directories(config: PipeConfig, input: ImageDataFrame):
 
 def create_darknet_data(config: PipeConfig, input: ImageDataFrame):
     """Creates the darknet data file"""
-    numberOfClasses = count_lines(config.classes_txt)
+    num_classes = count_lines(config.classes_txt)
     data_file = Path(config.outputFolder, "darknet.data")
     copy_of_classes_txt = Path(
         config.outputImgSubFolder, config.classes_txt.name)
@@ -51,13 +52,40 @@ def create_darknet_data(config: PipeConfig, input: ImageDataFrame):
         data_file.unlink()
 
     with open(Path(config.outputFolder, "darknet.data"), 'a') as f:
-        f.write('classes = %i %s' % (numberOfClasses, os.linesep))
+        f.write('classes = %i %s' % (num_classes, os.linesep))
         f.write('train = %s %s' % (config.train_txt, os.linesep))
         f.write('valid = %s %s' % (config.test_txt, os.linesep))
         f.write('names = %s %s' % (copy_of_classes_txt, os.linesep))
         f.write('backup = %s %s' % (config.outputWeightsFolder, os.linesep))
 
     return input
+
+
+def create_yolo_cfg(config: PipeConfig, input: ImageDataFrame):
+    max_batch = config.max_batch_size
+
+    num_classes = count_lines(config.classes_txt)
+
+    # calculate the 2 steps values:
+    step1 = 0.8 * max_batch
+    step2 = 0.9 * max_batch
+
+    num_filters = (num_classes + 5) * 3
+    new_cfg_file = shutil.copy(
+        config.yolo_cfg, Path(config.outputFolder, "our-"+config.yolo_cfg.name))
+    with open(new_cfg_file) as f:
+        s = f.read()
+
+    s = re.sub('channels=\d*', 'channels='+str(3 if config.color else 1), s)
+    s = re.sub('max_batches = \d*', 'max_batches = '+str(max_batch), s)
+    s = re.sub('steps=\d*,\d*', 'steps=' +
+               "{:.0f}".format(step1)+','+"{:.0f}".format(step2), s)
+    s = re.sub('classes=\d*', 'classes='+str(num_classes), s)
+    s = re.sub('pad=1\nfilters=\d*', 'pad=1\nfilters=' +
+               "{:.0f}".format(num_filters), s)
+
+    with open(new_cfg_file, 'w') as f:
+        f.write(s)
 
 
 def readImages(config: PipeConfig, input: ImageDataFrame, testSize=0.2) -> ImageDataFrame:

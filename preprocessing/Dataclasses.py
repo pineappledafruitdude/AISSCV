@@ -37,8 +37,10 @@ class PipeConfig:
     train_txt: Path
     test_txt: Path
     classes_txt: Path
+    yolo_cfg: Path
+    max_batch_size: int
 
-    def __init__(self, name: str, inputFolder: str, outputFolder: str, imgSubFolderName: str, resizedImgSize: int, finalImgSize: int, numberOfAugmentations: int, color: bool, transform: Compose, classes_txt: str) -> None:
+    def __init__(self, name: str, inputFolder: str, outputFolder: str, imgSubFolderName: str, resizedImgSize: int, finalImgSize: int, numberOfAugmentations: int, color: bool, transform: Compose, classes_txt: str, yolo_cfg: str, max_batch_size: int) -> None:
         """
             Pipeline configuration class
 
@@ -53,6 +55,8 @@ class PipeConfig:
                 color (bool): Should color be included?
                 transform (Compose): The albumentations transform variable
                 classes_txt (str): Full path to the classes.txt file including the filename e.g. '/Path/classes.txt'
+                yolo_cfg (str): Full path to the yolo.cfg file including the filename e.g. '/Path/yolov4.cfg'. The file is copied and modified.
+                max_batch_size (int): Max batch size of the yolo.cfg file
         """
         self.inputFolder = Path(inputFolder).absolute()
         self.outputFolder = Path(outputFolder, name).absolute()
@@ -68,6 +72,8 @@ class PipeConfig:
         self.train_txt = Path(self.outputFolder, "train.txt").absolute()
         self.test_txt = Path(self.outputFolder, "test.txt").absolute()
         self.classes_txt = Path(classes_txt).absolute()
+        self.yolo_cfg = Path(yolo_cfg).absolute()
+        self.max_batch_size = max_batch_size
 
 
 class ImageDataFrame:

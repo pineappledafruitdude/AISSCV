@@ -1,6 +1,6 @@
 import argparse
 from util import create_transform
-from functions import augment, create_darknet_data, resize_images, readImages, split
+from functions import augment, create_darknet_data, create_yolo_cfg, resize_images, readImages, split
 from Dataclasses import PipeConfig
 from Pipeline import Pipeline
 
@@ -16,7 +16,9 @@ def main(args):
         numberOfAugmentations=10,
         color=args.c,
         transform=create_transform(),
-        classes_txt=args.cls
+        classes_txt=args.cls,
+        yolo_cfg=args.yolo_cfg,
+        max_batch_size=args.batch_size
     )
     # Initialize Pipeline
     pipe = Pipeline(config=config)
@@ -36,6 +38,9 @@ def main(args):
     # 5. Create the darknet data file
     pipe.add(create_darknet_data)
 
+    # 6. Create the yolo config
+    pipe.add(create_yolo_cfg)
+
     # Execute Pipeline
     pipe.execute()
 
@@ -53,6 +58,10 @@ if __name__ == '__main__':
                         help='Path where the results of this pipeline run are stored. Default to "./output"')
     parser.add_argument('-c', metavar='color', type=bool, default=False,
                         help='Whether the images are colored or greyscaled')
+    parser.add_argument('-yolo_cfg', metavar='yolo cfg file', type=str, default='../model/darknet_cfgs/yolov4-tiny-custom.cfg',
+                        help='Original yolovX config file that is beeing modified')
+    parser.add_argument('-batch_size', metavar='max batch size', type=int, default=3000,
+                        help='Max batch size of the yolovX.cfg file')
 
     args = parser.parse_args()
     main(args)
