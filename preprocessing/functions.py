@@ -33,6 +33,7 @@ def clear_output_folder(config: PipeConfig, input: ImageDataFrame):
 def create_output_directories(config: PipeConfig, input: ImageDataFrame):
     """Create the output directories (output and img output)"""
     mkdir(Path(config.outputFolder))
+    mkdir(Path(config.outputWeightsFolder))
     mkdir(Path(config.outputImgSubFolder))
     return input
 
@@ -54,7 +55,7 @@ def create_darknet_data(config: PipeConfig, input: ImageDataFrame):
         f.write('train = %s %s' % (config.train_txt, os.linesep))
         f.write('valid = %s %s' % (config.test_txt, os.linesep))
         f.write('names = %s %s' % (copy_of_classes_txt, os.linesep))
-        f.write('backup = %s %s' % (config.outputFolder, os.linesep))
+        f.write('backup = %s %s' % (config.outputWeightsFolder, os.linesep))
 
     return input
 
