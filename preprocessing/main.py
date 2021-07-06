@@ -47,7 +47,7 @@ if __name__ == '__main__':
                         help='Name of this pipeline run.')
     parser.add_argument('-i', metavar='input folder', type=str, default='./data',
                         help='Path where the original images are stored. Default to "./data"')
-    parser.add_argument('-cls', metavar='classes.txt', required=True, type=str,
+    parser.add_argument('-cls', metavar='classes.txt', required=True, type=str, default="./data/classes.txt",
                         help='Classes txt file for darknet')
     parser.add_argument('-o', metavar='output folder', type=str, default='./output',
                         help='Path where the results of this pipeline run are stored. Default to "./output"')
