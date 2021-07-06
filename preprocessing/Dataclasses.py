@@ -56,6 +56,8 @@ class PipeConfig:
         """
         self.inputFolder = Path(inputFolder).absolute()
         self.outputFolder = Path(outputFolder, name).absolute()
+        self.outputWeightsFolder = Path(
+            self.outputFolder, "weights").absolute()
         self.outputImgSubFolder = Path(
             self.outputFolder, imgSubFolderName).absolute()
         self.resizedImgSize = resizedImgSize
