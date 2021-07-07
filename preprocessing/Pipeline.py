@@ -36,6 +36,9 @@ class Pipeline:
             redPrint("The orginal yolo.cfg file '%s' doesn't exist" %
                      self.org_yolo_cfg)
             sys.exit()
+        if not self.config.folds > 0:
+            redPrint("The number of folds must be > 0")
+            sys.exit()
 
     def add(self, function: Callable, *kwargs, **args):
         self.steps.append(

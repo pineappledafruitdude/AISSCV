@@ -30,7 +30,10 @@ def main(args):
     # pipe.add(resize_images)
 
     # 3. Split the images in train & test images
-    pipe.add(kfold)
+    if pipe.config.folds == 1:
+        pipe.add(split)
+    else:
+        pipe.add(kfold)
 
     # 4. Augment the images
     pipe.add(augment)
