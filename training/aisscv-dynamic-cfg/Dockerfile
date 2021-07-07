@@ -70,7 +70,7 @@ WORKDIR /
 # Sets up the entry point to invoke the trainer.
 ENTRYPOINT export RUN_NAME=$(date +%Y%m%d_%H%M%S) && \
     git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv && \
-    cd /aisscv/preprocessing && python3.8 main.py -n ${RUN_NAME} -cls "./data/classes.txt" -o "/aisscv/model" -c=${COLOR} && \
+    cd /aisscv/preprocessing && python3.8 main.py -n=${RUN_NAME} -o "/aisscv/model" -c=${COLOR} && \
     cd /darknet && \
     ./darknet detector train /aisscv/model/${RUN_NAME}/darknet.data /aisscv/model/${RUN_NAME}/our-yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -dont_show && \
     ./darknet detector map /aisscv/model/${RUN_NAME}/darknet.data /aisscv/model/${RUN_NAME}/our-yolov4-tiny-custom.cfg /aisscv/model/${RUN_NAME}/weights/our-yolov4-tiny-custom_last.weights > /aisscv/model/${RUN_NAME}/result.txt && \
