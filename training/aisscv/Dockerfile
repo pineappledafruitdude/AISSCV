@@ -72,4 +72,6 @@ RUN python3.8 main.py -n "run_1" -cls "./data/classes.txt" -o "/aisscv/model"
 WORKDIR /darknet
 RUN wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29
 # Sets up the entry point to invoke the trainer.
-ENTRYPOINT ./darknet detector train /aisscv/model/run_1/darknet.data /aisscv/model/our-yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -dont_show && gsutil -m cp -r /aisscv/model/run_1/ gs://aisscv/run_1/
+ENTRYPOINT ./darknet detector train /aisscv/model/run_1/darknet.data /aisscv/model/our-yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -dont_show && \
+    rm -rf /aisscv/model/run_1/obj && \
+    gsutil -m cp -r /aisscv/model/run_1/ gs://aisscv/$(date +%Y%m%d_%H%M%S)
