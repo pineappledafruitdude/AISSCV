@@ -1,6 +1,6 @@
 import argparse
 from util import create_transform
-from functions import augment, create_darknet_data, create_yolo_cfg, resize_images, readImages, split
+from functions import augment, create_darknet_data, create_yolo_cfg, resize_images, readImages, split, kfold
 from Dataclasses import PipeConfig
 from Pipeline import Pipeline
 
@@ -8,17 +8,17 @@ from Pipeline import Pipeline
 def main(args):
     config = PipeConfig(
         name=args.n,
-        inputFolder=args.i,
-        outputFolder=args.o,
-        imgSubFolderName="obj",
-        resizedImgSize=600,
-        finalImgSize=416,
-        numberOfAugmentations=10,
+        input_folder=args.i,
+        output_folder=args.o,
+        resized_img_size=600,
+        final_img_size=416,
+        number_of_augmentations=10,
         color=args.c,
         transform=create_transform(),
         classes_txt=args.cls,
         yolo_cfg=args.yolo_cfg,
-        max_batch_size=args.batch_size
+        max_batch_size=args.batch_size,
+        folds=args.f
     )
     # Initialize Pipeline
     pipe = Pipeline(config=config)
@@ -27,18 +27,18 @@ def main(args):
     pipe.add(readImages)
 
     # 2. Resize images (if done once comment out)
-    pipe.add(resize_images)
+    # pipe.add(resize_images)
 
     # 3. Split the images in train & test images
-    pipe.add(split)
+    pipe.add(kfold)
 
     # 4. Augment the images
     pipe.add(augment)
 
-    # 5. Create the darknet data file
+    # # 5. Create the darknet data file
     pipe.add(create_darknet_data)
 
-    # 6. Create the yolo config
+    # # 6. Create the yolo config
     pipe.add(create_yolo_cfg)
 
     # Execute Pipeline
@@ -48,6 +48,8 @@ def main(args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Preprocessing Pipeline')
+    parser.add_argument('-f', metavar='number of folds', type=int, default=1,
+                        help='Amount of folds to be created')
     parser.add_argument('-n', metavar='name', required=True, type=str,
                         help='Name of this pipeline run.')
     parser.add_argument('-i', metavar='input folder', type=str, default='./data',

@@ -24,13 +24,17 @@ class Pipeline:
         self.add(create_output_directories)
 
         # Check if input directory exists
-        if not self.config.inputFolder.exists():
+        if not self.config.input_folder.exists():
             redPrint("The input folder '%s' doesn't exist" %
-                     self.config.inputFolder)
+                     self.config.input_folder)
             sys.exit()
-        if not self.config.classes_txt.exists():
-            redPrint("The darknet classes file '%s' doesn't exist" %
-                     self.config.classes_txt)
+        if not self.config.org_classes_txt.exists():
+            redPrint("The orginal darknet classes file '%s' doesn't exist" %
+                     self.org_classes_txt)
+            sys.exit()
+        if not self.config.org_yolo_cfg.exists():
+            redPrint("The orginal yolo.cfg file '%s' doesn't exist" %
+                     self.org_yolo_cfg)
             sys.exit()
 
     def add(self, function: Callable, *kwargs, **args):

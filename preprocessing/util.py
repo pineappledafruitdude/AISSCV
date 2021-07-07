@@ -67,7 +67,7 @@ def query_yes_no(question, default="yes"):
 
 def mkdir(p: Path) -> Path:
     """Creates a directory if it doesn't exist yet. The directory Path is returned.
-    You can pass as many chunks seperated by a comma, e.g. mkdir('this/is', 'a', 'folder') 
+    You can pass as many chunks seperated by a comma, e.g. mkdir('this/is', 'a', 'folder')
     results in 'this/is/a/path'. You can also specify path in windows style with backslash """
     try:
 
@@ -158,7 +158,7 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
 
     output_df = ImageDataFrame()
 
-    for j in range(config.numberOfAugmentations):
+    for j in range(config.number_of_augmentations):
         output_img = Path(output_path, file_stem +
                           "_transformed_"+str(j+1) + ".jpg")
         output_txt = Path(output_path, file_stem + "_transformed_" +
@@ -221,8 +221,8 @@ def create_transform():
         [
 
             A.RandomCrop(height=416, width=416, p=1),
-            #A.FancyPCA (alpha=0.1, always_apply=False, p=0.5),
-            #A.ColorJitter(brightness=0.8, contrast=0.6, saturation=0.2, hue=0.2, always_apply=False, p=0.5),
+            # A.FancyPCA (alpha=0.1, always_apply=False, p=0.5),
+            # A.ColorJitter(brightness=0.8, contrast=0.6, saturation=0.2, hue=0.2, always_apply=False, p=0.5),
             # A.ToGray,
             A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
                                value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.5),
@@ -230,22 +230,22 @@ def create_transform():
                 8, 8), always_apply=False, p=0.5),
             A.Equalize(mode='cv', by_channels=False, mask=None,
                        mask_params=(), always_apply=False, p=0.7),
-            #A.Rotate(limit=40, p=0.8, border_mode=cv2.BORDER_CONSTANT),
+            # A.Rotate(limit=40, p=0.8, border_mode=cv2.BORDER_CONSTANT),
             A.HorizontalFlip(p=0.3),
             A.Sharpen(alpha=(0.2, 0.3), lightness=(
                 0.5, 0.7), always_apply=False, p=0.05),
             A.RandomBrightnessContrast(
                 brightness_limit=0.1, contrast_limit=0.1,  always_apply=False, p=0.5),
             A.RandomGamma(gamma_limit=(80, 120),  always_apply=False, p=0.5),
-            #A.Perspective(scale=(0.05, 0.1), keep_size=True, pad_mode=0, pad_val=0, mask_pad_val=0, fit_output=True, interpolation=1, always_apply=False, p=0.5),
-            #A.ISONoise(color_shift=(0.01, 0.05), intensity=(0.1, 0.5), always_apply=False, p=0.5),
+            # A.Perspective(scale=(0.05, 0.1), keep_size=True, pad_mode=0, pad_val=0, mask_pad_val=0, fit_output=True, interpolation=1, always_apply=False, p=0.5),
+            # A.ISONoise(color_shift=(0.01, 0.05), intensity=(0.1, 0.5), always_apply=False, p=0.5),
             A.Blur(blur_limit=2, always_apply=False, p=0.3),
-            #A.GaussianBlur(blur_limit=(3, 7), sigma_limit=0, always_apply=False, p=0.5),
-            #A.OpticalDistortion(distort_limit=0.05, shift_limit=0.05, interpolation=1, border_mode=4, value=None, mask_value=None, always_apply=False, p=0.5),
-            #A.ImageCompression(quality_lower=25, quality_upper=100, compression_type=ImageCompressionType.JPEG, always_apply=False, p=0.8),
+            # A.GaussianBlur(blur_limit=(3, 7), sigma_limit=0, always_apply=False, p=0.5),
+            # A.OpticalDistortion(distort_limit=0.05, shift_limit=0.05, interpolation=1, border_mode=4, value=None, mask_value=None, always_apply=False, p=0.5),
+            # A.ImageCompression(quality_lower=25, quality_upper=100, compression_type=ImageCompressionType.JPEG, always_apply=False, p=0.8),
             A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
                          per_channel=False, always_apply=False, p=0.5),
-            #A.GridDistortion(num_steps=5, distort_limit=0.3, interpolation=1, border_mode=4, value=None, mask_value=None, always_apply=False, p=0.5),
+            # A.GridDistortion(num_steps=5, distort_limit=0.3, interpolation=1, border_mode=4, value=None, mask_value=None, always_apply=False, p=0.5),
 
 
         ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
