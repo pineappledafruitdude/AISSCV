@@ -17,22 +17,31 @@ RUN sed -i 's/CUDNN=0/CUDNN=1/' ./darknet/Makefile
 RUN sed -i 's/OPENCV=0/OPENCV=1/' ./darknet/Makefile
 RUN sed -i 's/LIBSO=0/LIBSO=1/' ./darknet/Makefile
 WORKDIR /darknet
-RUN make
-RUN wget https://pjreddie.com/media/files/yolov3-tiny.weights
+RUN make && \
+    wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Advanced%20Inference%20Model.ipynb && \
+    wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Inference.py && \
+    wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Video.py
+WORKDIR /
+RUN mkdir model
+WORKDIR /model
+RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/model/run_3/our-yolov4-tiny-custom.cfg
+RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/model/run_3/darknet.data
+RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/model/run_3/weights/our-yolov4-tiny-custom_final.weights
 #
 # Jetcam
 #
 SHELL ["/bin/bash", "-c"]
 WORKDIR /
 RUN git clone https://github.com/NVIDIA-AI-IOT/jetcam
-WORKDIR jetcam
+WORKDIR /jetcam
 RUN python3 setup.py install
 #
 # NodeJS for Jupyter Widgets
 #
+WORKDIR /
 RUN wget https://nodejs.org/dist/v12.13.0/node-v12.13.0-linux-arm64.tar.xz \
     && tar -xJf node-v12.13.0-linux-arm64.tar.xz
-WORKDIR node-v12.13.0-linux-arm64
+WORKDIR /node-v12.13.0-linux-arm64
 RUN cp -R * /usr/local/
 RUN node -v
 #
