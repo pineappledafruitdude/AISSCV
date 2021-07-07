@@ -271,15 +271,16 @@ def augment(config: PipeConfig, input: list[ImageDataFrame]) -> list[ImageDataFr
     for i, run in enumerate(config.runs):
         input_data = input[i]
 
-        number_of_images = len(input_data.frame.index) * \
-            (1+config.number_of_augmentations)
+        number_of_images = len(input_data.frame[input_data.frame["is_test"] == False].index) * \
+            (1+config.number_of_augmentations) + \
+            len(input_data.frame[input_data.frame["is_test"] == True].index)
 
         pipePrint("%s: Creating %i images" %
                   (run.output_folder.name, number_of_images))
 
         # iterate in the df
+        number_of_images_processed = 0
         for i, row in enumerate(input_data.frame.iterrows()):
-            current_img_number = (i)*(1+config.number_of_augmentations)
             file_stem: str = row[1].values[0]
             img_file: str = row[1].values[1]
             label_file: str = row[1].values[2]
@@ -306,19 +307,19 @@ def augment(config: PipeConfig, input: list[ImageDataFrame]) -> list[ImageDataFr
             if not is_test:
                 # Read in label
                 labels = get_labels(input_path_txt)
-                current_img_number += 10
+                number_of_images_processed += 10
                 # Augment data with albumentations
                 pipePrint("Fold %i: (%i/%i) Augmenting: File %s; #Labels %i; Class %s" %
-                          (run.run, current_img_number, number_of_images, file_stem, len(labels), class_name))
+                          (run.run, number_of_images_processed, number_of_images, file_stem, len(labels), class_name))
                 augmented_df = augmentImage(config, image, labels,
                                             run.img_folder, file_stem, class_name)
                 # Add the augmented images to the output df
                 output.frame = pd.concat([output.frame, augmented_df.frame])
 
             # Save original image (train & test) in appropriate scaling
-            current_img_number += 1
+            number_of_images_processed += 1
             pipePrint("Fold %i: (%i/%i) Copying: Original %s File %s" %
-                      (run.run, current_img_number, number_of_images, "Test" if is_test else "", file_stem))
+                      (run.run, number_of_images_processed, number_of_images, "Test" if is_test else "", file_stem))
             image = cv2.resize(image, (config.final_img_size, config.final_img_size),
                                interpolation=cv2.INTER_NEAREST)
             cv2.imwrite(str(output_path_img), image)
