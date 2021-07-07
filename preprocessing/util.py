@@ -1,9 +1,10 @@
 from __future__ import annotations
+import os
 from pandas.core.frame import DataFrame
 from Dataclasses import ImageDataFrame, PipeConfig
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from albumentations.core.composition import Compose
 from rich.console import Console
 import pandas as pd
@@ -12,6 +13,8 @@ import numpy as np
 import cv2
 import shutil
 import argparse
+import subprocess
+import shlex
 
 console = Console()
 
@@ -286,3 +289,93 @@ def add_pipe_args(parser: argparse.ArgumentParser):
                         help='Max batch size of the yolovX.cfg file')
 
 
+def add_train_args(parser: argparse.ArgumentParser):
+    """Add the args for the trainig to the provided parser"""
+    parser.add_argument('-darknet', metavar='darknet folder', type=str, required=True,
+                        help='Path to the darknet executable')
+
+
+def train(config: PipeConfig, darknet_path: Path):
+    number_of_runs = len(config.runs)
+    for i, run in enumerate(config.runs):
+        yolo_conv = Path(darknet_path, 'yolov4-tiny.conv.29')
+
+        # Go to darknet path
+        os.chdir(darknet_path)
+
+        # Train command
+        run_darknet = './darknet detector train %s %s %s -dont_show' % (str(run.darknet_data),
+                                                                        str(run.yolo_cfg),
+                                                                        str(yolo_conv))
+
+        execute_cmd("Training Darknet", run_darknet, i+1, number_of_runs)
+
+        # Test/Map command
+
+        final_weight = Path(run.weights_folder,
+                            run.yolo_cfg.stem+"_final.weights")
+        results_txt = Path(run.output_folder, "results.txt")
+
+        run_map = './darknet detector map %s %s %s > %s' % (str(run.darknet_data),
+                                                            str(run.yolo_cfg),
+                                                            str(final_weight),
+                                                            str(results_txt))
+
+        execute_cmd("Map Darknet", run_map, i+1, number_of_runs, results_txt)
+
+        # Remove image folder
+        remove_img_folder = 'rm -rf %s' % run.img_folder
+        execute_cmd("Removing image folder",
+                    remove_img_folder, i+1, number_of_runs)
+
+        # Copy the chart
+        chart = Path(darknet_path, "chart.png")
+        cp_chart = 'cp %s %s' % (
+            str(chart), str(run.output_folder))
+        execute_cmd("Copy chart", cp_chart, i+1, number_of_runs)
+
+    # Copy the output folders of all runs
+    destination = Path("/", config.output_folder.name)
+    cp_output_folders = 'gsutil -m cp -r %s gs://aisscv%s' % (
+        str(config.output_folder), str(destination))
+    execute_cmd("Copy run folder", cp_output_folders,
+                number_of_runs, number_of_runs)
+
+
+def execute_cmd(descr: str, cmd: str, number: int, total: int, output_file: Optional[Path] = None):
+    """Execute a commad. Command must be string including the complete command"""
+    bluePrint("\nRUN %i/%i: %s (%s)" % (number, total, descr, cmd), bold=True)
+
+    process = subprocess.Popen(
+        shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print_cmd_output(process, output_file)
+
+
+def print_cmd_output(process: subprocess.Popen, output_file: Optional[Path] = None):
+    while True:
+        output = process.stdout.readline()
+        output_2 = process.stderr.readline()
+        pipePrint(output.strip().decode('utf-8'))
+        pipePrint(output_2.strip().decode('utf-8'))
+        # Do something else
+        return_code = process.poll()
+        if return_code is not None:
+            save_output = isinstance(output_file, Path)
+            pipePrint('RETURN CODE', return_code)
+            # Process has finished, read or save rest of the output
+            if save_output:
+                f = open(output_file, 'a')
+
+            for output in process.stdout.readlines():
+                text = output.strip().decode('utf-8')
+                pipePrint(text)
+                if save_output:
+                    f.write('%s %s' % (text, os.linesep))
+            for output in process.stderr.readlines():
+                text = output.strip().decode('utf-8')
+                pipePrint(text)
+                if save_output:
+                    f.write('%s %s' % (text, os.linesep))
+            if save_output:
+                f.close()
+            break
