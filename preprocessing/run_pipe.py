@@ -12,7 +12,7 @@ def main(args):
         output_folder=args.o,
         resized_img_size=600,
         final_img_size=416,
-        number_of_augmentations=10,
+        number_of_augmentations=args.nbr_augment,
         color=args.c,
         transform=create_transform(),
         classes_txt=args.cls,

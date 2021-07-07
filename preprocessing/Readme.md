@@ -41,16 +41,17 @@ python3 run_pipe.py -n "The name of the run"
 
 The following arguments can be passed when calling `python3 run_pipe.py -n "Name"`:
 
-| arg         | Long                 | Description                                                                                                    |
-| ----------- | -------------------- | -------------------------------------------------------------------------------------------------------------- |
-| -n          | Name                 | Name of this pipeline run. A subfolder with this name will be created in the output directory                  |
-| -i          | Input Folder         | Path where the original images are stored. Default to "./data"                                                 |
-| -cls        | Darknet classes file | Full path to the darknet classes file. E.g. "./data/classes.txt"                                               |
-| -o          | Output Folder        | Path where the results of this pipeline run are stored. Default to "./output"                                  |
-| -c          | Color                | Whether the images are colored or greyscaled                                                                   |
-| -f          | Number of folds      | If f=1 then a train_test_split is performed (20%) if f>1 f-folds are created for training                      |
-| -yolo_cfg   | Yolo cfg file        | Original yolovX config file that is beeing modified. Default to '../model/darknet_cfgs/yolov4-tiny-custom.cfg' |
-| -batch_size | Batch size           | Max batch size that is saved to the yolovX.cfg file used for training                                          |
+| arg          | Long                    | Description                                                                                                    |
+| ------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| -n           | Name                    | Name of this pipeline run. A subfolder with this name will be created in the output directory                  |
+| -i           | Input Folder            | Path where the original images are stored. Default to "./data"                                                 |
+| -cls         | Darknet classes file    | Full path to the darknet classes file. E.g. "./data/classes.txt"                                               |
+| -o           | Output Folder           | Path where the results of this pipeline run are stored. Default to "./output"                                  |
+| -c           | Color                   | Whether the images are colored or greyscaled                                                                   |
+| -f           | Number of folds         | If f=1 then a train_test_split is performed (20%) if f>1 f-folds are created for training                      |
+| -yolo_cfg    | Yolo cfg file           | Original yolovX config file that is beeing modified. Default to '../model/darknet_cfgs/yolov4-tiny-custom.cfg' |
+| -batch_size  | Batch size              | Max batch size that is saved to the yolovX.cfg file used for training                                          |
+| -nbr_augment | Number of augmentations | Number of augmentations to perform per train image                                                             |
 
 ## Other options
 

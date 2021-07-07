@@ -287,6 +287,8 @@ def add_pipe_args(parser: argparse.ArgumentParser):
                         help='Original yolovX config file that is beeing modified')
     parser.add_argument('-batch_size', metavar='max batch size', type=int, default=3000,
                         help='Max batch size of the yolovX.cfg file')
+    parser.add_argument('-nbr_augment', metavar='number of augmentations', type=int, default=10,
+                        help='Number of augmentations to perform per train image')
 
 
 def add_train_args(parser: argparse.ArgumentParser):
