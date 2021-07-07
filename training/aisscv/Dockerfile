@@ -73,5 +73,6 @@ WORKDIR /darknet
 RUN wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29
 # Sets up the entry point to invoke the trainer.
 ENTRYPOINT ./darknet detector train /aisscv/model/run_1/darknet.data /aisscv/model/our-yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -dont_show && \
+    ./darknet detector map /aisscv/model/run_1/darknet.data /aisscv/model/run_1/our-yolov4-tiny-custom.cfg /aisscv/model/run_1/weights/our-yolov4-tiny-custom_final.weights > /aisscv/model/run_1/result.txt && \
     rm -rf /aisscv/model/run_1/obj && \
     gsutil -m cp -r /aisscv/model/run_1/ gs://aisscv/$(date +%Y%m%d_%H%M%S)
