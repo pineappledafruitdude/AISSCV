@@ -39,25 +39,25 @@ python3 main.py -n "The name of the run"
 
 ## Arguments
 
-The following arguments can be passed when calling `python3 main.py -n "Name" -cls ./data/classes.txt`:
+The following arguments can be passed when calling `python3 main.py -n "Name"`:
 
-| arg  | Long                 | Description                                                                                   |
-| ---- | -------------------- | --------------------------------------------------------------------------------------------- |
-| -n   | Name                 | Name of this pipeline run. A subfolder with this name will be created in the output directory |
-| -i   | Input Folder         | Path where the original images are stored. Default to "./data"                                |
-| -cls | Darknet classes file | Full path to the darknet classes file. E.g. "./data/classes.txt"                              |
-| -o   | Output Folder        | Path where the results of this pipeline run are stored. Default to "./output"                 |
-| -c   | Color                | Whether the images are colored or greyscaled                                                  |
+| arg         | Long                 | Description                                                                                                    |
+| ----------- | -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| -n          | Name                 | Name of this pipeline run. A subfolder with this name will be created in the output directory                  |
+| -i          | Input Folder         | Path where the original images are stored. Default to "./data"                                                 |
+| -cls        | Darknet classes file | Full path to the darknet classes file. E.g. "./data/classes.txt"                                               |
+| -o          | Output Folder        | Path where the results of this pipeline run are stored. Default to "./output"                                  |
+| -c          | Color                | Whether the images are colored or greyscaled                                                                   |
+| -f          | Number of folds      | If f=1 then a train_test_split is performed (20%) if f>1 f-folds are created for training                      |
+| -yolo_cfg   | Yolo cfg file        | Original yolovX config file that is beeing modified. Default to '../model/darknet_cfgs/yolov4-tiny-custom.cfg' |
+| -batch_size | Batch size           | Max batch size that is saved to the yolovX.cfg file used for training                                          |
 
 ## Other options
 
 The following other options can be configured in the file `main.py`:
 
-| Config                | Description                                                                                                                                                                                               |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| imgSubFolderName      | The subfolder where the images are stored. Example for imgSubFolderName='obj: If your output path is './output' and your name is 'run_1' then the augmented images will be stored in './output/run_1/obj' |
-| resizedImgSize        | The size of the images before the augmentation is applied. Actually the original images in the inputfolder are cropped in place before the augmentation starts centered                                   |
-| finalImgSize          | The image size after the pipeline is done. Applies to all train & test images.                                                                                                                            |
-| numberOfAugmentations | The number of augmentations per image                                                                                                                                                                     |
-
-x
+| Config                  | Description                                                                                                                                                     |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| resized_img_size        | The size of the images before the augmentation is applied. Actually the original images in the input folder are cropped in place before the augmentation starts |
+| final_img_size          | The image size after the pipeline is done. Applies to all train & test images.                                                                                  |
+| number_of_augmentations | The number of augmentations per image                                                                                                                           |
