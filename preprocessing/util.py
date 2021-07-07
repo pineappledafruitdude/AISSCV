@@ -296,10 +296,11 @@ def add_train_args(parser: argparse.ArgumentParser):
 
 def train(config: PipeConfig, darknet_path: Path):
     for i, run in enumerate(config.runs):
+        yolo_conv = 'yolov4-tiny.conv.29'
+
         # Go to darknet path
         os.chdir(darknet_path)
 
-        yolo_conv = 'yolov4-tiny.conv.29'
         # Train command
         run_darknet = [
             "./darknet",
@@ -312,11 +313,12 @@ def train(config: PipeConfig, darknet_path: Path):
         process = subprocess.Popen(
             run_darknet, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print_cmd_output(process)
+
+        # Test/Map command
         final_weight = Path(run.weights_folder,
                             run.yolo_cfg.name+"_final.weights")
         results_txt = Path(run.output_folder, "results.txt")
 
-        # Test/Map command
         run_map = [
             "./darknet",
             'detector train',
@@ -327,6 +329,15 @@ def train(config: PipeConfig, darknet_path: Path):
         ]
         process = subprocess.Popen(
             run_map, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print_cmd_output(process)
+
+        # Copy the weights
+        cp_weights = [
+            "rm -rf",
+            run.img_folder,
+            "&& cp - r", run.output_folder, "/result"]
+        process = subprocess.Popen(
+            cp_weights, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print_cmd_output(process)
 
 
