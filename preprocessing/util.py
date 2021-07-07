@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 from pandas.core.frame import DataFrame
 from Dataclasses import ImageDataFrame, PipeConfig
 import sys
@@ -12,6 +13,7 @@ import numpy as np
 import cv2
 import shutil
 import argparse
+import subprocess
 
 console = Console()
 
@@ -286,3 +288,57 @@ def add_pipe_args(parser: argparse.ArgumentParser):
                         help='Max batch size of the yolovX.cfg file')
 
 
+def add_train_args(parser: argparse.ArgumentParser):
+    """Add the args for the trainig to the provided parser"""
+    parser.add_argument('-darknet', metavar='darknet folder', type=str, required=True,
+                        help='Path to the darknet executable')
+
+
+def train(config: PipeConfig, darknet_path: Path):
+    for i, run in enumerate(config.runs):
+        # Go to darknet path
+        os.chdir(darknet_path)
+
+        yolo_conv = 'yolov4-tiny.conv.29'
+        # Train command
+        run_darknet = [
+            "./darknet",
+            'detector train',
+            str(run.darknet_data),
+            str(run.yolo_cfg),
+            yolo_conv,
+            '-dont_show'
+        ]
+        process = subprocess.Popen(
+            run_darknet, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print_cmd_output(process)
+        final_weight = Path(run.weights_folder,
+                            run.yolo_cfg.name+"_final.weights")
+        results_txt = Path(run.output_folder, "results.txt")
+
+        # Test/Map command
+        run_map = [
+            "./darknet",
+            'detector train',
+            str(run.darknet_data),
+            str(run.yolo_cfg),
+            str(final_weight),
+            '> '+str(results_txt)
+        ]
+        process = subprocess.Popen(
+            run_map, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print_cmd_output(process)
+
+
+def print_cmd_output(process: subprocess.Popen):
+    while True:
+        output = process.stdout.readline()
+        print(output.strip())
+        # Do something else
+        return_code = process.poll()
+        if return_code is not None:
+            print('RETURN CODE', return_code)
+            # Process has finished, read rest of the output
+            for output in process.stdout.readlines():
+                print(output.strip())
+            break
