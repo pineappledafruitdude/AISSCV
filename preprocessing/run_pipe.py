@@ -1,0 +1,56 @@
+import argparse
+from util import add_pipe_args, create_transform
+from functions import augment, create_darknet_data, create_yolo_cfg, resize_images, readImages, split, kfold
+from Dataclasses import PipeConfig
+from Pipeline import Pipeline
+
+
+def main(args):
+    config = PipeConfig(
+        name=args.n,
+        input_folder=args.i,
+        output_folder=args.o,
+        resized_img_size=600,
+        final_img_size=416,
+        number_of_augmentations=10,
+        color=args.c,
+        transform=create_transform(),
+        classes_txt=args.cls,
+        yolo_cfg=args.yolo_cfg,
+        max_batch_size=args.batch_size,
+        folds=args.f
+    )
+    # Initialize Pipeline
+    pipe = Pipeline(config=config)
+
+    # 1. Red the images
+    pipe.add(readImages)
+
+    # 2. Resize images (if done once comment out)
+    # pipe.add(resize_images)
+
+    # 3. Split the images in train & test images
+    if pipe.config.folds == 1:
+        pipe.add(split)
+    else:
+        pipe.add(kfold)
+
+    # 4. Augment the images
+    pipe.add(augment)
+
+    # # 5. Create the darknet data file
+    pipe.add(create_darknet_data)
+
+    # # 6. Create the yolo config
+    pipe.add(create_yolo_cfg)
+
+    # Execute Pipeline
+    pipe.execute()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Preprocessing Pipeline')
+    add_pipe_args(parser)
+    args = parser.parse_args()
+
+    main(args)

@@ -11,6 +11,7 @@ import albumentations as A
 import numpy as np
 import cv2
 import shutil
+import argparse
 
 console = Console()
 
@@ -262,3 +263,26 @@ def count_lines(txt_file: Path) -> int:
                 lines += 1
 
     return lines
+
+
+def add_pipe_args(parser: argparse.ArgumentParser):
+    """Add the args for the pipeline to the provided parser"""
+
+    parser.add_argument('-f', metavar='number of folds', type=int, default=1,
+                        help='Amount of folds to be created')
+    parser.add_argument('-n', metavar='name', required=True, type=str,
+                        help='Name of this pipeline run.')
+    parser.add_argument('-i', metavar='input folder', type=str, default='./data',
+                        help='Path where the original images are stored. Default to "./data"')
+    parser.add_argument('-cls', metavar='classes.txt', required=False, type=str, default="./data/classes.txt",
+                        help='Classes txt file for darknet')
+    parser.add_argument('-o', metavar='output folder', type=str, default='./output',
+                        help='Path where the results of this pipeline run are stored. Default to "./output"')
+    parser.add_argument('-c', metavar='color', type=bool, default=False,
+                        help='Whether the images are colored or greyscaled')
+    parser.add_argument('-yolo_cfg', metavar='yolo cfg file', type=str, default='../model/darknet_cfgs/yolov4-tiny-custom.cfg',
+                        help='Original yolovX config file that is beeing modified')
+    parser.add_argument('-batch_size', metavar='max batch size', type=int, default=3000,
+                        help='Max batch size of the yolovX.cfg file')
+
+

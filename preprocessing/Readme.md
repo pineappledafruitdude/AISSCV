@@ -34,12 +34,12 @@ The images in the input path provided are overwritten with the resized ones
 Run the following minimal command to execute the pipeline:
 
 ```zsh
-python3 main.py -n "The name of the run"
+python3 run_pipe.py -n "The name of the run"
 ```
 
 ## Arguments
 
-The following arguments can be passed when calling `python3 main.py -n "Name"`:
+The following arguments can be passed when calling `python3 run_pipe.py -n "Name"`:
 
 | arg         | Long                 | Description                                                                                                    |
 | ----------- | -------------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -54,7 +54,7 @@ The following arguments can be passed when calling `python3 main.py -n "Name"`:
 
 ## Other options
 
-The following other options can be configured in the file `main.py`:
+The following other options can be configured in the file `run_pipe.py`:
 
 | Config                  | Description                                                                                                                                                     |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
