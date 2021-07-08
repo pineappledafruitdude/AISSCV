@@ -333,9 +333,9 @@ def train(config: PipeConfig, darknet_path: Path):
                     output_file=results_txt, show_error=False)
 
         # Remove image folder
-        # remove_img_folder = 'rm -rf %s' % run.img_folder
-        # execute_cmd("Removing image folder",
-        #             remove_img_folder, i+1, number_of_runs)
+        remove_img_folder = 'rm -rf %s' % run.img_folder
+        execute_cmd("Removing image folder",
+                    remove_img_folder, i+1, number_of_runs)
 
         # Copy the chart
         chart = Path(darknet_path, "chart.png")
