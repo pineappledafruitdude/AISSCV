@@ -15,6 +15,7 @@ import shutil
 import argparse
 import subprocess
 import shlex
+import logging
 
 console = Console()
 
@@ -105,23 +106,23 @@ def clear_folder(folder: Path):
 
 
 def pipePrint(*args, style=None):
-    console.print(PRINT_ARROW, *args, style=style)
+    logging.info(PRINT_ARROW, *args, style=style)
 
 
 def redPrint(*args):
-    console.print(*args, style="red")
+    logging.error(*args, style="red")
 
 
 def greenPrint(*args):
-    console.print(*args, style="green")
+    logging.info(*args, style="green")
 
 
 def bluePrint(*args, bold: bool = False):
-    console.print(*args, style="blue %s" % ("bold" if bold else ""))
+    logging.info(*args, style="blue %s" % ("bold" if bold else ""))
 
 
 def stepPrint(i, total, name):
-    bluePrint("\nStep %i/%i '%s': Started" % (i, total, name), bold=True)
+    logging.info("\nStep %i/%i '%s': Started" % (i, total, name), bold=True)
 
 
 def preprocess_label(line: str) -> List:
@@ -344,23 +345,27 @@ def train(config: PipeConfig, darknet_path: Path):
                 number_of_runs, number_of_runs)
 
 
-def execute_cmd(descr: str, cmd: str, number: int, total: int, output_file: Optional[Path] = None):
-    """Execute a commad. Command must be string including the complete command"""
+def execute_cmd(descr: str, cmd: str, number: int, total: int, log_level: str, output_file: Optional[Path] = None):
+    """Execute a command. Command must be string including the complete command"""
     bluePrint("\nRUN %i/%i: %s (%s)" % (number, total, descr, cmd), bold=True)
 
     process = subprocess.Popen(
         shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print_cmd_output(process, output_file)
+    print_cmd_output(process, log_level, output_file)
 
 
-def print_cmd_output(process: subprocess.Popen, output_file: Optional[Path] = None):
+def print_cmd_output(process: subprocess.Popen, log_level: str, output_file: Optional[Path] = None):
     save_output = isinstance(output_file, Path)
     if save_output:
         f = open(output_file, 'a')
     while True:
-
+        # Log output
         output = process.stdout.readline().strip().decode('utf-8')
+        log(log_level, output)
         output_2 = process.stderr.readline().strip().decode('utf-8')
+        log("error", output)
+
+        # Save output to file
         if save_output:
             f.write('%s %s' % (output, os.linesep))
             f.write('%s %s' % (output_2, os.linesep))
@@ -374,14 +379,23 @@ def print_cmd_output(process: subprocess.Popen, output_file: Optional[Path] = No
 
             for output in process.stdout.readlines():
                 text = output.strip().decode('utf-8')
-                pipePrint(text)
+                log(log_level, text)
                 if save_output:
                     f.write('%s %s' % (text, os.linesep))
             for output in process.stderr.readlines():
                 text = output.strip().decode('utf-8')
-                pipePrint(text)
+                log("error", text)
                 if save_output:
                     f.write('%s %s' % (text, os.linesep))
             break
     if save_output:
         f.close()
+
+
+def log(log_level: str, msg: str):
+    if log_level == "error":
+        logging.error(msg)
+    if log_level == "info":
+        logging.info(msg)
+    else:
+        logging.debug(msg)
