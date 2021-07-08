@@ -21,8 +21,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s: %(message)s'
 )
 
-console = Console()
-
 PRINT_ARROW = "------->"
 
 DICT = {0: 'Mensa',
