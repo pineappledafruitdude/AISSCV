@@ -16,6 +16,7 @@ class Pipeline:
         self.steps = []
 
         self.setup()
+        print("Running pipe with the following config %s" % (self.config)
 
     def setup(self):
         """Setup the pipeline"""
@@ -51,12 +52,12 @@ class Pipeline:
         )
 
     def execute(self):
-        lastRestult = None
-        numberOfSteps = len(self.steps)
+        lastRestult=None
+        numberOfSteps=len(self.steps)
 
         for i, step in enumerate(self.steps):
             stepPrint(i+1, numberOfSteps, step.function.__name__)
             # Exectute the steps function
-            lastRestult = step.call(input=lastRestult)
+            lastRestult=step.call(input=lastRestult)
             # Done
             pipePrint("Done", style="bold green")

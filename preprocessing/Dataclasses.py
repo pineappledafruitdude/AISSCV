@@ -105,6 +105,16 @@ class PipeConfig:
         self.max_batch_size = max_batch_size
         self.folds = folds
 
+    def __str__(self) -> str:
+        return "input_folder: %s \n output_folder: %s\n resized_img_size: %s\n final_img_size: %s\n number_of_augmentations: %s\n color: %s\n max_batch_size: %s\n folds: %s\n" % (self.input_folder,
+                                                                                                                                                                                   self.output_folder,
+                                                                                                                                                                                   self.resized_img_size,
+                                                                                                                                                                                   self.final_img_size,
+                                                                                                                                                                                   self.number_of_augmentations,
+                                                                                                                                                                                   self.color,
+                                                                                                                                                                                   self.max_batch_size,
+                                                                                                                                                                                   self.folds)
+
 
 class ImageDataFrame:
     """
