@@ -307,7 +307,7 @@ def augment(config: PipeConfig, input: list[ImageDataFrame]) -> list[ImageDataFr
             if not is_test:
                 # Read in label
                 labels = get_labels(input_path_txt)
-                number_of_images_processed += 10
+                number_of_images_processed += config.number_of_augmentations
                 # Augment data with albumentations
                 pipePrint("Fold %i: (%i/%i) Augmenting: File %s; #Labels %i; Class %s" %
                           (run.run, number_of_images_processed, number_of_images, file_stem, len(labels), class_name))
