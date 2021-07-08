@@ -61,7 +61,7 @@ def query_yes_no(question, default="yes"):
 
     while True:
         print(PRINT_ARROW + " " + question +
-              prompt, style="bold red", end=None)
+              prompt)
         choice = input().lower()
         if default is not None and choice == "":
             return valid[default]
@@ -69,7 +69,7 @@ def query_yes_no(question, default="yes"):
             return valid[choice]
         else:
             print(PRINT_ARROW +
-                  " Please respond with 'yes' or 'no' " "(or 'y' or 'n').", style="bold red")
+                  " Please respond with 'yes' or 'no' " "(or 'y' or 'n').")
 
 
 def mkdir(p: Path) -> Path:
