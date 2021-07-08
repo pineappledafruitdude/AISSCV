@@ -9,6 +9,9 @@ ARG CUDNN=1
 ARG CUDNN_HALF=0
 ARG OPENCV=1
 ARG COLOR=false
+ARG BATCH_SIZE=3000
+ARG FOLDS=1
+ARG NBR_AUGMENT=10
 
 
 # To save you a headache
@@ -28,7 +31,7 @@ RUN apt-get update && \
 RUN apt-get update && apt-get install -y python3.8-dev python3-pip
 # Install all needed python librarires 
 RUN python3.8 -m pip install --upgrade pip
-RUN python3.8 -m pip install albumentations matplotlib numpy opencv-python pandas rich scikit-learn
+RUN python3.8 -m pip install albumentations==1.0.0 matplotlib==3.4.2 numpy==1.21.0 opencv-python==4.5.2.54 pandas==1.2.5 rich==10.4.0 scikit-learn==0.24.2
 
 # Create working directory 
 WORKDIR /
@@ -67,12 +70,11 @@ RUN echo '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
 # Copies the trainer code 
 WORKDIR /
+COPY start.sh /scripts/start.sh
+RUN ["chmod", "+x", "/scripts/start.sh"]
+ENTRYPOINT ["sh","/scripts/start.sh", "-darknet=/darknet", "-path=/"]
 # Sets up the entry point to invoke the trainer.
-ENTRYPOINT export RUN_NAME=$(date +%Y%m%d_%H%M%S) && \
-    git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv && \
-    cd /aisscv/preprocessing && python3.8 main.py -n=${RUN_NAME} -o "/aisscv/model" -c=${COLOR} && \
-    cd /darknet && \
-    ./darknet detector train /aisscv/model/${RUN_NAME}/darknet.data /aisscv/model/${RUN_NAME}/our-yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -dont_show && \
-    ./darknet detector map /aisscv/model/${RUN_NAME}/darknet.data /aisscv/model/${RUN_NAME}/our-yolov4-tiny-custom.cfg /aisscv/model/${RUN_NAME}/weights/our-yolov4-tiny-custom_last.weights > /aisscv/model/${RUN_NAME}/result.txt && \
-    rm -rf /aisscv/model/${RUN_NAME}/obj && \
-    gsutil -m cp -r /aisscv/model/${RUN_NAME}/ gs://aisscv/
+# CMD export RUN_NAME=$(date +%Y%m%d_%H%M%S) && \
+#     git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv && \
+#     cd /aisscv/preprocessing && \
+#     python3.8 run_train.py -n=${RUN_NAME} -o "/aisscv/model" -c=1 -f=2 -darknet "/darknet"
