@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 from albumentations.core.composition import Compose
-from rich.console import Console
 import pandas as pd
 import albumentations as A
 import numpy as np

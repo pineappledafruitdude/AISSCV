@@ -3,5 +3,4 @@ matplotlib==3.4.2
 numpy==1.21.0
 opencv-python==4.5.2.54
 pandas==1.2.5
-rich==10.4.0
 scikit-learn==0.24.2
