@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Callable
 import sys
-from util import bluePrint, pipePrint, redPrint, stepPrint
+from util import infoPrint, pipePrint, redPrint, stepPrint
 from functions import clear_output_folder, create_output_directories
 from Dataclasses import PipeConfig
 from Dataclasses import PipelineFunction
@@ -16,7 +16,7 @@ class Pipeline:
         self.steps = []
 
         self.setup()
-        print("Running pipe with the following config %s" % (self.config))
+        infoPrint("Running pipe with the following config %s" % (self.config))
 
     def setup(self):
         """Setup the pipeline"""
@@ -60,4 +60,4 @@ class Pipeline:
             # Exectute the steps function
             lastRestult = step.call(input=lastRestult)
             # Done
-            pipePrint("Done", style="bold green")
+            pipePrint("Done")

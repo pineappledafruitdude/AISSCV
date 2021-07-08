@@ -1,7 +1,7 @@
 from __future__ import annotations
 from Dataclasses import ImageDataFrame
 import re
-from util import augmentImage, clear_folder, count_lines, get_labels, pipePrint, mkdir
+from util import augmentImage, clear_folder, count_lines, debugPrint, get_labels, infoPrint, pipePrint, mkdir
 from pathlib import Path
 import shutil
 from typing import TYPE_CHECKING
@@ -309,8 +309,12 @@ def augment(config: PipeConfig, input: list[ImageDataFrame]) -> list[ImageDataFr
                 labels = get_labels(input_path_txt)
                 number_of_images_processed += config.number_of_augmentations
                 # Augment data with albumentations
-                pipePrint("Fold %i: (%i/%i) Augmenting: File %s; #Labels %i; Class %s" %
-                          (run.run, number_of_images_processed, number_of_images, file_stem, len(labels), class_name))
+                if i % 50 == 0:
+                    infoPrint("Fold %i: (%i/%i) Augmenting: File %s; #Labels %i; Class %s" %
+                              (run.run, number_of_images_processed, number_of_images, file_stem, len(labels), class_name))
+                else:
+                    debugPrint("Fold %i: (%i/%i) Augmenting: File %s; #Labels %i; Class %s" %
+                               (run.run, number_of_images_processed, number_of_images, file_stem, len(labels), class_name))
                 augmented_df = augmentImage(config, image, labels,
                                             run.img_folder, file_stem, class_name)
                 # Add the augmented images to the output df
@@ -318,8 +322,12 @@ def augment(config: PipeConfig, input: list[ImageDataFrame]) -> list[ImageDataFr
 
             # Save original image (train & test) in appropriate scaling
             number_of_images_processed += 1
-            pipePrint("Fold %i: (%i/%i) Copying: Original %s File %s" %
-                      (run.run, number_of_images_processed, number_of_images, "Test" if is_test else "", file_stem))
+            if i % 50 == 0:
+                infoPrint("Fold %i: (%i/%i) Copying: Original %s File %s" %
+                          (run.run, number_of_images_processed, number_of_images, "Test" if is_test else "", file_stem))
+            else:
+                debugPrint("Fold %i: (%i/%i) Copying: Original %s File %s" %
+                           (run.run, number_of_images_processed, number_of_images, "Test" if is_test else "", file_stem))
             image = cv2.resize(image, (config.final_img_size, config.final_img_size),
                                interpolation=cv2.INTER_NEAREST)
             cv2.imwrite(str(output_path_img), image)

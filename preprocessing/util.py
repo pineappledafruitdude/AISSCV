@@ -17,6 +17,11 @@ import subprocess
 import shlex
 import logging
 
+logging.basicConfig(
+    level=logging.DEBUG,  # allow DEBUG level messages to pass through the logger
+    format='%(asctime)s - %(levelname)s: %(message)s'
+)
+
 console = Console()
 
 PRINT_ARROW = "------->"
@@ -105,24 +110,24 @@ def clear_folder(folder: Path):
         sys.exit()
 
 
-def pipePrint(*args, style=None):
-    logging.info(PRINT_ARROW, *args, style=style)
+def pipePrint(msg=""):
+    logging.info("%s %s" % (PRINT_ARROW, msg))
 
 
-def redPrint(*args):
-    logging.error(*args, style="red")
+def redPrint(msg=""):
+    logging.error(msg)
 
 
-def greenPrint(*args):
-    logging.info(*args, style="green")
+def debugPrint(msg=""):
+    logging.debug(msg)
 
 
-def bluePrint(*args, bold: bool = False):
-    logging.info(*args, style="blue %s" % ("bold" if bold else ""))
+def infoPrint(msg=""):
+    logging.info(msg)
 
 
 def stepPrint(i, total, name):
-    logging.info("\nStep %i/%i '%s': Started" % (i, total, name), bold=True)
+    logging.info("Step %i/%i '%s': Started" % (i, total, name))
 
 
 def preprocess_label(line: str) -> List:
@@ -301,6 +306,8 @@ def add_train_args(parser: argparse.ArgumentParser):
 def train(config: PipeConfig, darknet_path: Path):
     number_of_runs = len(config.runs)
     for i, run in enumerate(config.runs):
+        logging.info("Running Training for %i/%i" % (i+1, number_of_runs))
+
         yolo_conv = Path(darknet_path, 'yolov4-tiny.conv.29')
 
         # Go to darknet path
@@ -311,7 +318,8 @@ def train(config: PipeConfig, darknet_path: Path):
                                                                         str(run.yolo_cfg),
                                                                         str(yolo_conv))
 
-        execute_cmd("Training Darknet", run_darknet, i+1, number_of_runs)
+        execute_cmd("Training Darknet", run_darknet,
+                    log_level="debug", show_error=False)
 
         # Test/Map command
 
@@ -319,12 +327,13 @@ def train(config: PipeConfig, darknet_path: Path):
                             run.yolo_cfg.stem+"_final.weights")
         results_txt = Path(run.output_folder, "results.txt")
 
-        run_map = './darknet detector map %s %s %s > %s' % (str(run.darknet_data),
-                                                            str(run.yolo_cfg),
-                                                            str(final_weight),
-                                                            str(results_txt))
+        run_map = './darknet detector map %s %s %s' % (str(run.darknet_data),
+                                                       str(run.yolo_cfg),
+                                                       str(final_weight)
+                                                       )
 
-        execute_cmd("Map Darknet", run_map, i+1, number_of_runs, results_txt)
+        execute_cmd("Map Darknet", run_map, log_level="info",
+                    output_file=results_txt, show_error=False)
 
         # Remove image folder
         # remove_img_folder = 'rm -rf %s' % run.img_folder
@@ -333,66 +342,88 @@ def train(config: PipeConfig, darknet_path: Path):
 
         # Copy the chart
         chart = Path(darknet_path, "chart.png")
+
         cp_chart = 'cp %s %s' % (
             str(chart), str(run.output_folder))
-        execute_cmd("Copy chart", cp_chart, i+1, number_of_runs)
+
+        execute_cmd("Copy chart", cp_chart, log_level="info")
 
     # Copy the output folders of all runs
     destination = Path("/", config.output_folder.name)
+
     cp_output_folders = 'gsutil -m cp -r %s gs://aisscv%s' % (
         str(config.output_folder), str(destination))
-    execute_cmd("Copy run folder", cp_output_folders,
-                number_of_runs, number_of_runs)
+
+    execute_cmd("Copy run folder", cp_output_folders, log_level="info")
 
 
-def execute_cmd(descr: str, cmd: str, number: int, total: int, log_level: str, output_file: Optional[Path] = None):
+def execute_cmd(descr: str, cmd: str, log_level: str = "debug", output_file: Optional[Path] = None, show_error: bool = True):
     """Execute a command. Command must be string including the complete command"""
-    bluePrint("\nRUN %i/%i: %s (%s)" % (number, total, descr, cmd), bold=True)
+    infoPrint("%s (%s)" % (descr, cmd))
 
     process = subprocess.Popen(
         shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print_cmd_output(process, log_level, output_file)
+    print_cmd_output(process=process, log_level=log_level,
+                     output_file=output_file, show_error=show_error)
+    pipePrint("Done %s" % descr)
 
 
-def print_cmd_output(process: subprocess.Popen, log_level: str, output_file: Optional[Path] = None):
+def print_cmd_output(process: subprocess.Popen, log_level: str = "debug", output_file: Optional[Path] = None, show_error: bool = True):
+    """Print the output of a command
+
+    Args:
+        process (subprocess.Popen): Process (command)
+        log_level (str, optional): Log level. Defaults to "debug".
+        output_file (Optional[Path], optional): If a file is specifed the output/errors are persisted in the file. Defaults to None.
+        show_error (bool, optional): Should erros be shown. Defaults to True.
+    """
     save_output = isinstance(output_file, Path)
+
     if save_output:
         f = open(output_file, 'a')
     while True:
         # Log output
         output = process.stdout.readline().strip().decode('utf-8')
-        log(log_level, output)
-        output_2 = process.stderr.readline().strip().decode('utf-8')
-        log("error", output)
-
+        log(output, log_level)
         # Save output to file
-        if save_output:
+        if save_output and output != "" and not output.startswith("rank"):
             f.write('%s %s' % (output, os.linesep))
-            f.write('%s %s' % (output_2, os.linesep))
 
-        # Do something else
+        # Log Error
+        error = process.stderr.readline().strip().decode('utf-8')
+        if show_error is True:
+            log(error, "error")
+
+        # Save error to file
+        if save_output and show_error and error != "":
+            f.write('Error: %s %s' % (error, os.linesep))
+
+        # Check return codes
         return_code = process.poll()
         if return_code is not None:
+            pipePrint('RETURN CODE %s' % return_code)
 
-            pipePrint('RETURN CODE', return_code)
             # Process has finished, read or save rest of the output
-
             for output in process.stdout.readlines():
                 text = output.strip().decode('utf-8')
-                log(log_level, text)
-                if save_output:
+                log(text, log_level)
+                # Save output
+                if save_output and text != "":
                     f.write('%s %s' % (text, os.linesep))
-            for output in process.stderr.readlines():
-                text = output.strip().decode('utf-8')
-                log("error", text)
-                if save_output:
-                    f.write('%s %s' % (text, os.linesep))
+            # Process has finished, read or save rest of the errors
+            if show_error:
+                for output in process.stderr.readlines():
+                    error = output.strip().decode('utf-8')
+                    log(error, "error")
+                    # Save error
+                    if save_output and error != "":
+                        f.write('Error:%s %s' % (text, os.linesep))
             break
     if save_output:
         f.close()
 
 
-def log(log_level: str, msg: str):
+def log(msg: str, log_level: str = "debug"):
     if msg == "":
         return
     if log_level == "error":
