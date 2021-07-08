@@ -1,3 +1,7 @@
+# Pipeline Overview
+
+<img src="./doc_img/pipeline.png" width=400 />
+
 # Install
 
 Python Version used: 3.9.5
