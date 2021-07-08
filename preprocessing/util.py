@@ -393,6 +393,8 @@ def print_cmd_output(process: subprocess.Popen, log_level: str, output_file: Opt
 
 
 def log(log_level: str, msg: str):
+    if msg == "":
+        return
     if log_level == "error":
         logging.error(msg)
     if log_level == "info":
