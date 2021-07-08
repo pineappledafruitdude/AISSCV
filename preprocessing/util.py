@@ -354,19 +354,23 @@ def execute_cmd(descr: str, cmd: str, number: int, total: int, output_file: Opti
 
 
 def print_cmd_output(process: subprocess.Popen, output_file: Optional[Path] = None):
+    save_output = isinstance(output_file, Path)
+    if save_output:
+        f = open(output_file, 'a')
     while True:
-        output = process.stdout.readline()
-        output_2 = process.stderr.readline()
-        pipePrint(output.strip().decode('utf-8'))
-        pipePrint(output_2.strip().decode('utf-8'))
+
+        output = process.stdout.readline().strip().decode('utf-8')
+        output_2 = process.stderr.readline().strip().decode('utf-8')
+        if save_output:
+            f.write('%s %s' % (output, os.linesep))
+            f.write('%s %s' % (output_2, os.linesep))
+
         # Do something else
         return_code = process.poll()
         if return_code is not None:
-            save_output = isinstance(output_file, Path)
+
             pipePrint('RETURN CODE', return_code)
             # Process has finished, read or save rest of the output
-            if save_output:
-                f = open(output_file, 'a')
 
             for output in process.stdout.readlines():
                 text = output.strip().decode('utf-8')
@@ -378,6 +382,6 @@ def print_cmd_output(process: subprocess.Popen, output_file: Optional[Path] = No
                 pipePrint(text)
                 if save_output:
                     f.write('%s %s' % (text, os.linesep))
-            if save_output:
-                f.close()
             break
+    if save_output:
+        f.close()
