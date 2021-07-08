@@ -1,6 +1,6 @@
 # Pipeline Overview
 
-<img src="./doc_img/pipeline.png" width=400 />
+<img src="./doc_img/pipeline.png" width=600 />
 
 # Install
 
