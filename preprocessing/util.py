@@ -230,32 +230,21 @@ def create_transform_1(config: PipeConfig) -> Compose:
         [
 
             A.RandomCrop(height=416, width=416, p=1),
-            # A.FancyPCA (alpha=0.1, always_apply=False, p=0.5),
-            # A.ColorJitter(brightness=0.8, contrast=0.6, saturation=0.2, hue=0.2, always_apply=False, p=0.5),
-            # A.ToGray,
             A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
                                value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.5),
             A.CLAHE(clip_limit=4.0, tile_grid_size=(
                 8, 8), always_apply=False, p=0.5),
             A.Equalize(mode='cv', by_channels=False, mask=None,
                        mask_params=(), always_apply=False, p=0.7),
-            # A.Rotate(limit=40, p=0.8, border_mode=cv2.BORDER_CONSTANT),
             A.HorizontalFlip(p=0.3),
             A.Sharpen(alpha=(0.2, 0.3), lightness=(
                 0.5, 0.7), always_apply=False, p=0.05),
             A.RandomBrightnessContrast(
                 brightness_limit=0.1, contrast_limit=0.1,  always_apply=False, p=0.5),
             A.RandomGamma(gamma_limit=(80, 120),  always_apply=False, p=0.5),
-            # A.Perspective(scale=(0.05, 0.1), keep_size=True, pad_mode=0, pad_val=0, mask_pad_val=0, fit_output=True, interpolation=1, always_apply=False, p=0.5),
-            # A.ISONoise(color_shift=(0.01, 0.05), intensity=(0.1, 0.5), always_apply=False, p=0.5),
             A.Blur(blur_limit=2, always_apply=False, p=0.3),
-            # A.GaussianBlur(blur_limit=(3, 7), sigma_limit=0, always_apply=False, p=0.5),
-            # A.OpticalDistortion(distort_limit=0.05, shift_limit=0.05, interpolation=1, border_mode=4, value=None, mask_value=None, always_apply=False, p=0.5),
-            # A.ImageCompression(quality_lower=25, quality_upper=100, compression_type=ImageCompressionType.JPEG, always_apply=False, p=0.8),
             A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
                          per_channel=False, always_apply=False, p=0.5),
-            # A.GridDistortion(num_steps=5, distort_limit=0.3, interpolation=1, border_mode=4, value=None, mask_value=None, always_apply=False, p=0.5),
-
 
         ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
 
@@ -268,59 +257,74 @@ def create_transform_2(config: PipeConfig) -> Compose:
         # greyscale
         transform = A.Compose(
             [
-            A.ToGray,
+                A.ToGray,
                 A.RandomCrop(height=config.final_img_size,
                              width=config.final_img_size, p=1),
-            A.RandomCrop(height=img_size, width=img_size, p=1),
-            A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4, value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.5),
-            A.CLAHE (clip_limit=4.0, tile_grid_size=(8, 8), always_apply=False, p=0.1),
-            A.Equalize(mode='cv', by_channels=False, mask=None, mask_params=(), always_apply=False, p=0.7),
-            A.HorizontalFlip(p=0.3),
-            
-            A.OneOf([
-                    A.Sharpen(alpha=(0.2, 0.3), lightness=(0.5, 0.7), always_apply=False, p=0.05),
-                    A.Blur (blur_limit=2, always_apply=False, p=0.2),
+                A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
+                                   value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.5),
+                A.CLAHE(clip_limit=4.0, tile_grid_size=(
+                    8, 8), always_apply=False, p=0.1),
+                A.Equalize(mode='cv', by_channels=False, mask=None,
+                           mask_params=(), always_apply=False, p=0.7),
+                A.HorizontalFlip(p=0.3),
+
+                A.OneOf([
+                    A.Sharpen(alpha=(0.2, 0.3), lightness=(
+                        0.5, 0.7), always_apply=False, p=0.05),
+                    A.Blur(blur_limit=2, always_apply=False, p=0.2),
                     A.MotionBlur(p=0.2)
-                    
-            ], p=0.5),
-            A.RandomBrightnessContrast (brightness_limit=0.1, contrast_limit=0.1,  always_apply=False, p=0.5),
-            A.RandomGamma (gamma_limit=(80, 120),  always_apply=False, p=0.5),
-            A.GaussNoise(var_limit=(1.0, 5.0), mean=0, per_channel=False, always_apply=False, p=0.5),           
+
+                ], p=0.5),
+                A.RandomBrightnessContrast(
+                    brightness_limit=0.1, contrast_limit=0.1,  always_apply=False, p=0.5),
+                A.RandomGamma(gamma_limit=(80, 120),
+                              always_apply=False, p=0.5),
+                A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
+                             per_channel=False, always_apply=False, p=0.5),
             ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
-    else:   
-        #color 
-        transform=A.Compose(
+    else:
+        # color
+        transform = A.Compose(
             [
                 A.RandomCrop(height=config.final_img_size,
                              width=config.final_img_size, p=1),
-            A.RandomCrop(height=img_size, width=img_size, p=1),
-            A.FancyPCA (alpha=0.1, always_apply=False, p=0.5),
-            A.ColorJitter(brightness=0.3, contrast=0.4, saturation=0.3, hue=0.1, always_apply=False, p=0.75),
-            A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4, value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.75),
-            A.CLAHE (clip_limit=4.0, tile_grid_size=(8, 8), always_apply=False, p=0.1),
-            A.Equalize(mode='cv', by_channels=True, mask=None, mask_params=(), always_apply=False, p=0.7),
-            A.HorizontalFlip(p=0.3),
-            
-            A.OneOf([
-                    A.Sharpen(alpha=(0.2, 0.3), lightness=(0.5, 0.7), always_apply=False, p=0.05),
-                    A.Blur (blur_limit=2, always_apply=False, p=0.2),
+                A.FancyPCA(alpha=0.1, always_apply=False, p=0.5),
+                A.ColorJitter(brightness=0.3, contrast=0.4,
+                              saturation=0.3, hue=0.1, always_apply=False, p=0.75),
+                A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
+                                   value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.75),
+                A.CLAHE(clip_limit=4.0, tile_grid_size=(
+                    8, 8), always_apply=False, p=0.1),
+                A.Equalize(mode='cv', by_channels=True, mask=None,
+                           mask_params=(), always_apply=False, p=0.7),
+                A.HorizontalFlip(p=0.3),
+
+                A.OneOf([
+                    A.Sharpen(alpha=(0.2, 0.3), lightness=(
+                        0.5, 0.7), always_apply=False, p=0.05),
+                    A.Blur(blur_limit=2, always_apply=False, p=0.2),
                     A.MotionBlur(p=0.2)
-            ], p=1),
-            
-            A.OneOf([
-                    A.RandomRain (slant_lower=-1, slant_upper=1, drop_length=2, drop_width=1, drop_color=(200, 200, 200), blur_value=5, brightness_coefficient=0.7, rain_type='drizzle', always_apply=False, p=1),
-                    A.RandomSnow (snow_point_lower=0.05, snow_point_upper=0.3, brightness_coeff=2.5, always_apply=False, p=1),
-                    A.RandomFog (fog_coef_lower=0.3, fog_coef_upper=0.6, alpha_coef=0.08, always_apply=False, p=1),
-            ], p=0.15),
-            
-            A.RandomGamma (gamma_limit=(80, 120),  always_apply=False, p=0.5),
-            A.GaussNoise(var_limit=(1.0, 5.0), mean=0, per_channel=False, always_apply=False, p=0.3),
-            
-                        
+                ], p=1),
+
+                A.OneOf([
+                    A.RandomRain(slant_lower=-1, slant_upper=1, drop_length=2, drop_width=1, drop_color=(200, 200, 200),
+                                 blur_value=5, brightness_coefficient=0.7, rain_type='drizzle', always_apply=False, p=1),
+                    A.RandomSnow(snow_point_lower=0.05, snow_point_upper=0.3,
+                                 brightness_coeff=2.5, always_apply=False, p=1),
+                    A.RandomFog(fog_coef_lower=0.3, fog_coef_upper=0.6,
+                                alpha_coef=0.08, always_apply=False, p=1),
+                ], p=0.15),
+
+                A.RandomGamma(gamma_limit=(80, 120),
+                              always_apply=False, p=0.5),
+                A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
+                             per_channel=False, always_apply=False, p=0.3),
+
+
             ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
 
-
     return transform
+
 
 def count_lines(txt_file: Path) -> int:
     """Count lines in a txt file"""
@@ -354,6 +358,8 @@ def add_pipe_args(parser: argparse.ArgumentParser):
                         help='Max batch size of the yolovX.cfg file')
     parser.add_argument('-nbr_augment', metavar='number of augmentations', type=int, default=10,
                         help='Number of augmentations to perform per train image')
+    parser.add_argument('-t', metavar='transformation function', type=int, default=1,
+                        help='Which transformation function should be used for the augmentation. Number 1 or 2')
 
 
 def add_train_args(parser: argparse.ArgumentParser):
