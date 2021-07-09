@@ -141,8 +141,12 @@ cython_debug/
 
 *.jpg
 *.txt
-!requirements.txt
-*.csv
-pyvenv.cfg
 *.data
+*.csv
+!requirements.txt
+
+!model/*/*/*.*
+
+pyvenv.cfg
+
 model/*.cfg
