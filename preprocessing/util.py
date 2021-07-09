@@ -1,10 +1,10 @@
 from __future__ import annotations
 import os
 from pandas.core.frame import DataFrame
-from Dataclasses import ImageDataFrame, PipeConfig
+from ImageDataFrame import ImageDataFrame
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 from albumentations.core.composition import Compose
 import pandas as pd
 import albumentations as A
@@ -15,6 +15,8 @@ import argparse
 import subprocess
 import shlex
 import logging
+if TYPE_CHECKING:
+    from Pipeline import PipeConfig
 
 logging.basicConfig(
     level=logging.DEBUG,  # allow DEBUG level messages to pass through the logger
@@ -222,7 +224,7 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
     return output_df
 
 
-def create_transform():
+def create_transform_1(config: PipeConfig) -> Compose:
     """Create the albumentation transform object"""
     transform = A.Compose(
         [
@@ -259,13 +261,16 @@ def create_transform():
 
     return transform
 
-def create_transform2():
+
+def create_transform_2(config: PipeConfig) -> Compose:
     """Create the albumentation transform object"""
-    if (False):###Attributname color für Bedingung?
-        #greyscale
-        transform=A.Compose(
+    if not config.color:
+        # greyscale
+        transform = A.Compose(
             [
             A.ToGray,
+                A.RandomCrop(height=config.final_img_size,
+                             width=config.final_img_size, p=1),
             A.RandomCrop(height=img_size, width=img_size, p=1),
             A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4, value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.5),
             A.CLAHE (clip_limit=4.0, tile_grid_size=(8, 8), always_apply=False, p=0.1),
@@ -286,6 +291,8 @@ def create_transform2():
         #color 
         transform=A.Compose(
             [
+                A.RandomCrop(height=config.final_img_size,
+                             width=config.final_img_size, p=1),
             A.RandomCrop(height=img_size, width=img_size, p=1),
             A.FancyPCA (alpha=0.1, always_apply=False, p=0.5),
             A.ColorJitter(brightness=0.3, contrast=0.4, saturation=0.3, hue=0.1, always_apply=False, p=0.75),

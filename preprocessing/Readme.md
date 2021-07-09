@@ -56,6 +56,7 @@ The following arguments can be passed when calling `python3 run_pipe.py -n "Name
 | -yolo_cfg    | `str`  | `../model/darknet_cfgs/yolov4-tiny-custom.cfg` | Yolo cfg file           | Original yolovX config file that is beeing modified. Default to '../model/darknet_cfgs/yolov4-tiny-custom.cfg' |
 | -batch_size  | `int`  | `3000`                                         | Batch size              | Max batch size that is saved to the yolovX.cfg file used for training                                          |
 | -nbr_augment | `int`  | `10`                                           | Number of augmentations | Number of augmentations to perform per train image                                                             |
+| -t           | `int`  | `1`                                            | Transform function      | Which type of transform function to be applied: Number 1 or Number 2                                           |
 
 ## Other options
 

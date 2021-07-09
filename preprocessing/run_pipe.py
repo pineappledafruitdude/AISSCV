@@ -1,8 +1,7 @@
 import argparse
-from util import add_pipe_args, create_transform
+from util import add_pipe_args
 from functions import augment, create_darknet_data, create_yolo_cfg, resize_images, readImages, split, kfold
-from Dataclasses import PipeConfig
-from Pipeline import Pipeline
+from Pipeline import Pipeline, PipeConfig
 
 
 def main(args):
@@ -14,7 +13,7 @@ def main(args):
         final_img_size=416,
         number_of_augmentations=args.nbr_augment,
         color=args.c,
-        transform=create_transform(),
+        transform=args.t,
         classes_txt=args.cls,
         yolo_cfg=args.yolo_cfg,
         max_batch_size=args.batch_size,
