@@ -9,6 +9,7 @@ calculation mAP (mean average precision)...
 Detection layer: 30 - type = 28 
 Detection layer: 37 - type = 28 
 detections_count = 1328, unique_truth_count = 268 
+class_id = 0, name = Mensa, ap = 66.59%   	 (TP = 19, FP = 12)
 class_id = 1, name = AKK, ap = 98.77%   	 (TP = 14, FP = 7) 
 class_id = 2, name = Audimax, ap = 74.16%   	 (TP = 10, FP = 9) 
 class_id = 3, name = Neue Bib, ap = 80.14%   	 (TP = 24, FP = 2) 

@@ -8,7 +8,8 @@ seen 64, trained: 192 K-images (3 Kilo-batches_64)
 calculation mAP (mean average precision)... 
 Detection layer: 30 - type = 28 
 Detection layer: 37 - type = 28 
-detections_count = 1344, unique_truth_count = 259 
+detections_count = 1344, unique_truth_count = 259
+class_id = 0, name = Mensa, ap = 67.98%   	 (TP = 18, FP = 8)
 class_id = 1, name = AKK, ap = 96.83%   	 (TP = 15, FP = 4) 
 class_id = 2, name = Audimax, ap = 73.52%   	 (TP = 8, FP = 5) 
 class_id = 3, name = Neue Bib, ap = 76.57%   	 (TP = 16, FP = 3) 
