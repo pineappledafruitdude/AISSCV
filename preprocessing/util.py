@@ -383,7 +383,7 @@ def print_cmd_output(process: subprocess.Popen, log_level: str = "debug", output
         output = process.stdout.readline().strip().decode('utf-8')
         log(output, log_level)
         # Save output to file
-        if save_output and output != "" and not output.startswith("rank"):
+        if save_output and output != "":
             f.write('%s %s' % (output, os.linesep))
 
         # Log Error
