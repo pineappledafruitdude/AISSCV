@@ -215,7 +215,6 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
         transformed_df = transformed_df.drop(4, axis=1)
         transformed_df = transformed_df.astype('string')
         if config.occlude and get_binary(0.75):
-            pipePrint("Occluding image: %s" % (output_img))
             transformed_image = occlude(transformed_image, 3)
         # Save image to file
         cv2.imwrite(str(output_img), transformed_image)
