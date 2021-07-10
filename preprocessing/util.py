@@ -224,7 +224,7 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
     return output_df
 
 
-def create_transform_2(config: PipeConfig) -> Compose:
+def create_transform_1(config: PipeConfig) -> Compose:
     """Create the albumentation transform object"""
     transform = A.Compose(
         [
@@ -251,7 +251,7 @@ def create_transform_2(config: PipeConfig) -> Compose:
     return transform
 
 
-def create_transform_1(config: PipeConfig) -> Compose:
+def create_transform_2(config: PipeConfig) -> Compose:
     """Create the albumentation transform object"""
     if not config.color:
         # greyscale
