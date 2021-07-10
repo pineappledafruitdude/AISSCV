@@ -240,7 +240,7 @@ def split(config: PipeConfig, input: ImageDataFrame, test_size: float = 0.2) -> 
 
     # Split the dataset
     X_train, X_test, Y_train, Y_test = train_test_split(
-        X, Y, test_size=test_size, stratify=Y)
+        X, Y, test_size=test_size, stratify=Y, random_state=1)
 
     # Concat the X and Y to give the DataFrame it's original columns
     test_data: pd.DataFrame = pd.concat([X_test, Y_test], axis=1)
@@ -278,6 +278,7 @@ def augment(config: PipeConfig, input: list[ImageDataFrame]) -> list[ImageDataFr
         The train.txt or test.txt will be used for model training.
     """
     for i, run in enumerate(config.runs):
+        # Get the ImageDataFrame of the i-th run
         input_data = input[i]
 
         number_of_images = len(input_data.frame[input_data.frame["is_test"] == False].index) * \
