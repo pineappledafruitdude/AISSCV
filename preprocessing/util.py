@@ -15,6 +15,8 @@ import argparse
 import subprocess
 import shlex
 import logging
+import imgaug
+imgaug.random.seed(123)
 if TYPE_CHECKING:
     from Pipeline import PipeConfig
 
@@ -289,8 +291,8 @@ def create_transform_2(config: PipeConfig) -> Compose:
                 A.RandomCrop(height=config.final_img_size,
                              width=config.final_img_size, p=1),
                 A.FancyPCA(alpha=0.1, always_apply=False, p=0.5),
-                A.ColorJitter(brightness=0.3, contrast=0.4,
-                              saturation=0.3, hue=0.1, always_apply=False, p=0.75),
+                A.ColorJitter(brightness=0.3, contrast=0.2,
+                              saturation=0.15, hue=0.07, always_apply=False, p=0.75),
                 A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
                                    value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.75),
                 A.CLAHE(clip_limit=4.0, tile_grid_size=(
@@ -350,7 +352,7 @@ def add_pipe_args(parser: argparse.ArgumentParser):
                         help='Classes txt file for darknet')
     parser.add_argument('-o', metavar='output folder', type=str, default='./output',
                         help='Path where the results of this pipeline run are stored. Default to "./output"')
-    parser.add_argument('-c', metavar='color', type=bool, default=False,
+    parser.add_argument('-c', metavar='color', action=argparse.BooleanOptionalAction, type=bool, default=False,
                         help='Whether the images are colored or greyscaled')
     parser.add_argument('-yolo_cfg', metavar='yolo cfg file', type=str, default='../model/darknet_cfgs/yolov4-tiny-custom.cfg',
                         help='Original yolovX config file that is beeing modified')
