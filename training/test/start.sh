@@ -1,14 +1,13 @@
 #!/bin/bash
-CURRENT_PATH="/"
+CURRENT_PATH="/aisscv/preprocessing"
 COLOR=false
 BATCH_SIZE=3000
 FOLDS=1
 NAME=$(date +%Y%m%d_%H%M%S)
 NBR_AUGMENTATIONS=10
 DARKNET="/darknet"
-TRANSFORM=1
 
-echo $@
+echo "$NAME"
 for arg in "$@"
 do
     case $arg in
@@ -32,10 +31,6 @@ do
         FOLDS="${arg#*=}"
         shift # Remove argument name from processing
         ;;
-        -t=*|--transform=*)
-        TRANSFORM="${arg#*=}"
-        shift # Remove argument name from processing
-        ;;
         -n=*|--name=*)      
         NAME="${arg#*=}"
         shift # Remove argument name from processing
@@ -46,14 +41,12 @@ do
         ;;
     esac
 done
-
-(cd "$CURRENT_PATH" && git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv)
-
+# (cd "$CURRENT_PATH" && git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv)
 if $COLOR
 then
-  (cd "$CURRENT_PATH"aisscv/preprocessing/ &&
-python3.8 run_train.py -n="$NAME" -o "/aisscv/model" -c -f="$FOLDS" -batch_size="$BATCH_SIZE" -nbr_augment="$NBR_AUGMENTATIONS" -darknet "$DARKNET")
+  (cd "$CURRENT_PATH"/preprocessing/ && 
+  python3 run_train.py -n="$NAME" -o "/aisscv/model" -f="$FOLDS" -nbr_augment="$NBR_AUGMENTATIONS" -darknet "$DARKNET" -c)
 else
-  (cd "$CURRENT_PATH"aisscv/preprocessing/ &&
-python3.8 run_train.py -n="$NAME" -o "/aisscv/model"  -f="$FOLDS" -batch_size="$BATCH_SIZE" -nbr_augment="$NBR_AUGMENTATIONS" -darknet "$DARKNET")
+  (cd "$CURRENT_PATH"/preprocessing/ && 
+  python3 run_train.py -n="$NAME" -o "/aisscv/model" -f="$FOLDS" -nbr_augment="$NBR_AUGMENTATIONS" -darknet "$DARKNET")
 fi

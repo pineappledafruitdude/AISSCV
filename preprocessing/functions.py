@@ -1,5 +1,5 @@
 from __future__ import annotations
-from Dataclasses import ImageDataFrame
+from ImageDataFrame import ImageDataFrame
 import re
 from util import augmentImage, clear_folder, count_lines, debugPrint, get_labels, infoPrint, pipePrint, mkdir
 from pathlib import Path
@@ -14,7 +14,7 @@ import os
 import yaml
 
 if TYPE_CHECKING:
-    from Dataclasses import PipeConfig
+    from Pipeline import PipeConfig
 
 # Template function
 
