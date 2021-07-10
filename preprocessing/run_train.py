@@ -12,13 +12,13 @@ def main(args):
         resized_img_size=600,
         final_img_size=416,
         number_of_augmentations=args.nbr_augment,
-        color=args.c,
+        color=True,
         transform=args.t,
         classes_txt=args.cls,
         yolo_cfg=args.yolo_cfg,
         max_batch_size=args.batch_size,
         folds=args.f,
-        occlude=args.occl
+        occlude=True
     )
     # Initialize Pipeline
     pipe = Pipeline(config=config)
