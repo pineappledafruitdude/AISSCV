@@ -144,6 +144,7 @@ cython_debug/
 *.data
 *.csv
 !requirements.txt
+**output/
 
 !model/*/*/*.*
 model/*/*/*.DS_Store
