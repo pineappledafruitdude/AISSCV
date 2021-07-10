@@ -1,9 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Optional, TYPE_CHECKING
-from pathlib import Path
+from pathlib import Path, PosixPath
 import pandas as pd
 from albumentations.core.composition import Compose
+import json
 
 if TYPE_CHECKING:
     from Pipeline import Pipeline
@@ -63,11 +64,11 @@ class PipeConfig:
     final_img_size: int
     number_of_augmentations: int
     color: bool
-    transform: Compose
     org_classes_txt: Path
     org_yolo_cfg: Path
     max_batch_size: int
     folds: int
+    transform: Compose
 
     def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: Compose, classes_txt: str, yolo_cfg: str, max_batch_size: int, folds: int) -> None:
         """
@@ -105,15 +106,20 @@ class PipeConfig:
         self.max_batch_size = max_batch_size
         self.folds = folds
 
+    def to_dict(self) -> dict:
+        """Dictionary represantation of the config"""
+        repr = {}
+        for key, value in self.__dict__.items():
+            if key == "runs":
+                continue
+            elif type(value) == PosixPath or type(value) == Compose:
+                repr[key] = str(value)
+            else:
+                repr[key] = value
+        return repr
+
     def __str__(self) -> str:
-        return "input_folder: %s \n output_folder: %s\n resized_img_size: %s\n final_img_size: %s\n number_of_augmentations: %s\n color: %s\n max_batch_size: %s\n folds: %s\n" % (self.input_folder,
-                                                                                                                                                                                   self.output_folder,
-                                                                                                                                                                                   self.resized_img_size,
-                                                                                                                                                                                   self.final_img_size,
-                                                                                                                                                                                   self.number_of_augmentations,
-                                                                                                                                                                                   self.color,
-                                                                                                                                                                                   self.max_batch_size,
-                                                                                                                                                                                   self.folds)
+        return json.dumps(self.to_dict(), indent=4)
 
 
 class ImageDataFrame:

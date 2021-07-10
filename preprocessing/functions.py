@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
 import numpy as np
 import os
-from datetime import datetime
+import yaml
 
 if TYPE_CHECKING:
     from Dataclasses import PipeConfig
@@ -30,6 +30,15 @@ def clear_output_folder(config: PipeConfig, input: ImageDataFrame):
     """Clears the output folders"""
     clear_folder(config.output_folder)
     pipePrint("Output Folder cleared")
+    return input
+
+
+def store_config(config: PipeConfig, input: ImageDataFrame):
+    """Stores the configuration in a yaml file"""
+    file_path = Path(config.output_folder, "config.yaml")
+    with open(file_path, 'w') as file:
+        pipePrint("Storing configuration in file: %s" % file_path)
+        yaml.dump(config.to_dict(), file)
     return input
 
 

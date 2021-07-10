@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Callable
 import sys
 from util import infoPrint, pipePrint, redPrint, stepPrint
-from functions import clear_output_folder, create_output_directories
+from functions import clear_output_folder, create_output_directories, store_config
 from Dataclasses import PipeConfig
 from Dataclasses import PipelineFunction
 
@@ -16,13 +16,16 @@ class Pipeline:
         self.steps = []
 
         self.setup()
-        infoPrint("Running pipe with the following config %s" % (self.config))
+        infoPrint("Running pipe with the following config: \n %s" %
+                  (self.config))
 
     def setup(self):
         """Setup the pipeline"""
         # Create the necessary directories
         self.add(clear_output_folder)
         self.add(create_output_directories)
+        # save the configuration
+        self.add(store_config)
 
         # Check if input directory exists
         if not self.config.input_folder.exists():
