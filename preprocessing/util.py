@@ -224,7 +224,7 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
     return output_df
 
 
-def create_transform_1(config: PipeConfig) -> Compose:
+def create_transform_2(config: PipeConfig) -> Compose:
     """Create the albumentation transform object"""
     transform = A.Compose(
         [
@@ -251,36 +251,36 @@ def create_transform_1(config: PipeConfig) -> Compose:
     return transform
 
 
-def create_transform_2(config: PipeConfig) -> Compose:
+def create_transform_1(config: PipeConfig) -> Compose:
     """Create the albumentation transform object"""
     if not config.color:
         # greyscale
         transform = A.Compose(
             [
-                A.ToGray,
+
                 A.RandomCrop(height=config.final_img_size,
                              width=config.final_img_size, p=1),
                 A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
-                                   value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.5),
+                                   value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, p=0.5),
                 A.CLAHE(clip_limit=4.0, tile_grid_size=(
-                    8, 8), always_apply=False, p=0.1),
+                    8, 8), p=0.1),
                 A.Equalize(mode='cv', by_channels=False, mask=None,
-                           mask_params=(), always_apply=False, p=0.7),
+                           mask_params=(), p=0.7),
                 A.HorizontalFlip(p=0.3),
 
                 A.OneOf([
                     A.Sharpen(alpha=(0.2, 0.3), lightness=(
-                        0.5, 0.7), always_apply=False, p=0.05),
-                    A.Blur(blur_limit=2, always_apply=False, p=0.2),
+                        0.5, 0.7), p=0.05),
+                    A.Blur(blur_limit=2, p=0.2),
                     A.MotionBlur(p=0.2)
 
                 ], p=0.5),
                 A.RandomBrightnessContrast(
                     brightness_limit=0.1, contrast_limit=0.1,  always_apply=False, p=0.5),
                 A.RandomGamma(gamma_limit=(80, 120),
-                              always_apply=False, p=0.5),
+                              p=0.5),
                 A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
-                             per_channel=False, always_apply=False, p=0.5),
+                             per_channel=False, p=0.5)
             ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
     else:
         # color
@@ -296,29 +296,29 @@ def create_transform_2(config: PipeConfig) -> Compose:
                 A.CLAHE(clip_limit=4.0, tile_grid_size=(
                     8, 8), always_apply=False, p=0.1),
                 A.Equalize(mode='cv', by_channels=True, mask=None,
-                           mask_params=(), always_apply=False, p=0.7),
+                           mask_params=(), p=0.7),
                 A.HorizontalFlip(p=0.3),
 
                 A.OneOf([
                     A.Sharpen(alpha=(0.2, 0.3), lightness=(
-                        0.5, 0.7), always_apply=False, p=0.05),
-                    A.Blur(blur_limit=2, always_apply=False, p=0.2),
+                        0.5, 0.7), p=0.05),
+                    A.Blur(blur_limit=2, p=0.2),
                     A.MotionBlur(p=0.2)
                 ], p=1),
 
                 A.OneOf([
                     A.RandomRain(slant_lower=-1, slant_upper=1, drop_length=2, drop_width=1, drop_color=(200, 200, 200),
-                                 blur_value=5, brightness_coefficient=0.7, rain_type='drizzle', always_apply=False, p=1),
+                                 blur_value=5, brightness_coefficient=0.7, rain_type='drizzle', p=1),
                     A.RandomSnow(snow_point_lower=0.05, snow_point_upper=0.3,
-                                 brightness_coeff=2.5, always_apply=False, p=1),
+                                 brightness_coeff=2.5,  p=1),
                     A.RandomFog(fog_coef_lower=0.3, fog_coef_upper=0.6,
-                                alpha_coef=0.08, always_apply=False, p=1),
+                                alpha_coef=0.08, p=1)
                 ], p=0.15),
 
                 A.RandomGamma(gamma_limit=(80, 120),
-                              always_apply=False, p=0.5),
+                              p=0.5),
                 A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
-                             per_channel=False, always_apply=False, p=0.3),
+                             per_channel=False, p=0.3)
 
 
             ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
