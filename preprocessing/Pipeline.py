@@ -100,8 +100,9 @@ class PipeConfig:
     folds: int
     transform: Compose
     transform_nbr: int
+    occlude: bool
 
-    def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: int, classes_txt: str, yolo_cfg: str, max_batch_size: int, folds: int) -> None:
+    def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: int, classes_txt: str, yolo_cfg: str, max_batch_size: int, folds: int, occlude: bool) -> None:
         """
             Pipeline configuration class
 
@@ -118,6 +119,7 @@ class PipeConfig:
                 yolo_cfg (str): Full path to the yolo.cfg file including the filename e.g. '/Path/yolov4.cfg'. The file is copied and modified.
                 max_batch_size (int): Max batch size of the yolo.cfg file
                 folds (int): Number of folds
+                occlude (bool): Should the images be occluded?
         """
         self.input_folder = Path(input_folder).absolute()
         self.output_folder = Path(output_folder, name).absolute()
@@ -141,6 +143,7 @@ class PipeConfig:
         self.org_yolo_cfg = Path(yolo_cfg).absolute()
         self.max_batch_size = max_batch_size
         self.folds = folds
+        self.occlude = occlude
 
     def to_dict(self) -> dict:
         """Dictionary represantation of the config"""

@@ -9,10 +9,12 @@ Image: `eu.gcr.io/delta-basis-318917/aisscv-dynamic-cfg:1.0`
 | arg             |  Type  | Default | Description                                                                                   |
 | --------------- | :----: | :-----: | --------------------------------------------------------------------------------------------- |
 | --name          | `str`  | `test`  | Name of this pipeline run. A subfolder with this name will be created in the output directory |
-| --color         | `bool` |   `0`   | Whether the images are colored or greyscaled. Value: 0 or 1                                   |
+| --color         | `bool` |         | Whether the images are colored or greyscaled. Add the --color if you want colored images      |
 | --folds         | `int`  |   `1`   | If f=1 then a train_test_split is performed (20%) if f>1 f-folds are created for training     |
 | --batch_size    | `int`  | `3000`  | Max batch size that is saved to the yolovX.cfg file used for training                         |
 | --augmentations | `int`  |  `10`   | Number of augmentations to perform per train image                                            |
+| --transform     | `int`  |   `1`   | Transformations function to be applied. Either `1`or `2`                                      |
+| --occlude       | `bool` |         | Add the occlude flag if you want images to be occluded                                        |
 
 ## Submitting a Job
 
@@ -28,8 +30,9 @@ Image: `eu.gcr.io/delta-basis-318917/aisscv-dynamic-cfg:1.0`
 
     ```
     --name=run_1
-    --color=1
+    --color
     --folds=5
+    --occlude
     ```
 
     <img src="./img/add_job_3.png" width=400 style="margin-top:20px; margin-bottom: 20px" />

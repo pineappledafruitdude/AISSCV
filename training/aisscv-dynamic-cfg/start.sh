@@ -1,14 +1,15 @@
 #!/bin/bash
 CURRENT_PATH="/"
 COLOR=false
+OCCLUDE=false
 BATCH_SIZE=3000
 FOLDS=1
 NAME=$(date +%Y%m%d_%H%M%S)
 NBR_AUGMENTATIONS=10
 DARKNET="/darknet"
 TRANSFORM=1
+COMMANDS="-n=$NAME -o /aisscv/model -f=$FOLDS -batch_size=$BATCH_SIZE -nbr_augment=$NBR_AUGMENTATIONS -darknet=$DARKNET"
 
-echo $@
 for arg in "$@"
 do
     case $arg in
@@ -22,6 +23,10 @@ do
         ;;
         -c|--color)
         COLOR=true
+        shift # Remove --initialize from processing
+        ;;
+        -occl|--occlude)
+        OCCLUDE=true
         shift # Remove --initialize from processing
         ;;
         -b=*|--batch_size=*)
@@ -51,9 +56,13 @@ done
 
 if $COLOR
 then
-  (cd "$CURRENT_PATH"aisscv/preprocessing/ &&
-python3.8 run_train.py -n="$NAME" -o "/aisscv/model" -c -f="$FOLDS" -batch_size="$BATCH_SIZE" -nbr_augment="$NBR_AUGMENTATIONS" -darknet "$DARKNET")
-else
-  (cd "$CURRENT_PATH"aisscv/preprocessing/ &&
-python3.8 run_train.py -n="$NAME" -o "/aisscv/model"  -f="$FOLDS" -batch_size="$BATCH_SIZE" -nbr_augment="$NBR_AUGMENTATIONS" -darknet "$DARKNET")
+  COMMANDS="$COMMANDS -c"
 fi
+
+if $OCCLUDE
+then
+  COMMANDS="$COMMANDS -occl"
+fi
+echo "Running script with: $COMMANDS"
+(cd "$CURRENT_PATH"preprocessing/ && python3 run_train.py $COMMANDS)
+

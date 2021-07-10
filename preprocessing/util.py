@@ -15,8 +15,12 @@ import argparse
 import subprocess
 import shlex
 import logging
-import imgaug
-imgaug.random.seed(123)
+import random
+random.seed(7)
+# Sperate generators for occlude and get_binary function
+generator1 = random.Random(456)
+generator2 = random.Random(556)
+
 if TYPE_CHECKING:
     from Pipeline import PipeConfig
 
@@ -210,6 +214,9 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
         transformed_df.iloc[:, 0] = transformed_df.iloc[:, 5]
         transformed_df = transformed_df.drop(4, axis=1)
         transformed_df = transformed_df.astype('string')
+        if config.occlude and get_binary(0.75):
+            pipePrint("Occluding image: %s" % (output_img))
+            transformed_image = occlude(transformed_image, 3)
         # Save image to file
         cv2.imwrite(str(output_img), transformed_image)
         # Save labels to file
@@ -328,6 +335,33 @@ def create_transform_2(config: PipeConfig) -> Compose:
     return transform
 
 
+def occlude(img, number_of_squares: int = 5):
+    """Add black squares randomly in front of the image. Idea based on the DropBlock method"""
+    masked_image = img
+
+    for i in range(number_of_squares):
+
+        mask = np.zeros(img.shape, dtype=np.uint8)
+        mask = 255 - mask
+
+        width = generator1.uniform(0.1, 0.4)
+        height = generator1.uniform(0.1, 0.4)
+
+        position_x = abs(generator1.random()-width)
+        position_y = abs(generator1.random()-height)
+
+        pt = np.array([
+            [img.shape[0]*position_x, img.shape[1]*position_y],
+            [img.shape[0]*(position_x+width), img.shape[1]*position_y],
+            [img.shape[0]*(position_x+width), img.shape[1]
+             * (position_y+height)],
+            [img.shape[0]*(position_x), img.shape[1]*(position_y+height)]
+        ])
+        cv2.fillPoly(mask, pts=np.int32([pt]), color=(0, 0, 0))
+        masked_image = cv2.bitwise_and(masked_image, mask)
+    return masked_image
+
+
 def count_lines(txt_file: Path) -> int:
     """Count lines in a txt file"""
     lines = 0
@@ -354,6 +388,8 @@ def add_pipe_args(parser: argparse.ArgumentParser):
                         help='Path where the results of this pipeline run are stored. Default to "./output"')
     parser.add_argument('-c', metavar='color', action=argparse.BooleanOptionalAction, type=bool, default=False,
                         help='Whether the images are colored or greyscaled')
+    parser.add_argument('-occl', metavar='occlude', action=argparse.BooleanOptionalAction, type=bool, default=False,
+                        help='Enable occlusion')
     parser.add_argument('-yolo_cfg', metavar='yolo cfg file', type=str, default='../model/darknet_cfgs/yolov4-tiny-custom.cfg',
                         help='Original yolovX config file that is beeing modified')
     parser.add_argument('-batch_size', metavar='max batch size', type=int, default=3000,
@@ -499,3 +535,7 @@ def log(msg: str, log_level: str = "debug"):
         logging.info(msg)
     else:
         logging.debug(msg)
+
+
+def get_binary(probability: float) -> bool:
+    return generator2.random() <= probability
