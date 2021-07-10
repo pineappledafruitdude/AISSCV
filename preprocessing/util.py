@@ -385,9 +385,9 @@ def add_pipe_args(parser: argparse.ArgumentParser):
                         help='Classes txt file for darknet')
     parser.add_argument('-o', metavar='output folder', type=str, default='./output',
                         help='Path where the results of this pipeline run are stored. Default to "./output"')
-    parser.add_argument('-c', metavar='color', action=argparse.BooleanOptionalAction, type=bool, default=False,
+    parser.add_argument('-c', metavar='color', type=bool, default=False,
                         help='Whether the images are colored or greyscaled')
-    parser.add_argument('-occl', metavar='occlude', action=argparse.BooleanOptionalAction, type=bool, default=False,
+    parser.add_argument('-occl', metavar='occlude', type=bool, default=False,
                         help='Enable occlusion')
     parser.add_argument('-yolo_cfg', metavar='yolo cfg file', type=str, default='../model/darknet_cfgs/yolov4-tiny-custom.cfg',
                         help='Original yolovX config file that is beeing modified')
