@@ -1,5 +1,0 @@
-classes = 14 
-train = /content/gdrive/MyDrive/AISS_CV-main/preprocessing/output/run_1/train.txt 
-valid = /content/gdrive/MyDrive/AISS_CV-main/preprocessing/output/run_1/test.txt 
-names = /content/gdrive/MyDrive/AISS_CV-main/preprocessing/data/classes.txt 
-backup = /content/gdrive/MyDrive/AISS_CV-main/preprocessing/output/run_1 
