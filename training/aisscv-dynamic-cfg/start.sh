@@ -57,7 +57,7 @@ do
 done
 COMMANDS="-n=$NAME -o /aisscv/model -f=$FOLDS -batch_size=$BATCH_SIZE -nbr_augment=$NBR_AUGMENTATIONS -darknet=$DARKNET -t=$TRANSFORM"
 
-#(cd "$CURRENT_PATH" && git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv)
+(cd "$CURRENT_PATH" && git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv)
 
 if $COLOR
 then
