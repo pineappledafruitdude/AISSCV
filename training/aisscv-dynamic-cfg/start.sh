@@ -8,7 +8,6 @@ NAME=$(date +%Y%m%d_%H%M%S)
 NBR_AUGMENTATIONS=10
 DARKNET="/darknet"
 TRANSFORM=1
-COMMANDS="-n=$NAME -o /aisscv/model -f=$FOLDS -batch_size=$BATCH_SIZE -nbr_augment=$NBR_AUGMENTATIONS -darknet=$DARKNET"
 
 for arg in "$@"
 do
@@ -51,6 +50,7 @@ do
         ;;
     esac
 done
+COMMANDS="-n=$NAME -o /aisscv/model -f=$FOLDS -batch_size=$BATCH_SIZE -nbr_augment=$NBR_AUGMENTATIONS -darknet=$DARKNET -t=$TRANSFORM"
 
 (cd "$CURRENT_PATH" && git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv)
 
@@ -64,5 +64,5 @@ then
   COMMANDS="$COMMANDS -occl"
 fi
 echo "Running script with: $COMMANDS"
-(cd "$CURRENT_PATH"preprocessing/ && python3 run_train.py $COMMANDS)
+(cd "$CURRENT_PATH"aisscv/preprocessing/ && python3.8 run_train.py $COMMANDS)
 
