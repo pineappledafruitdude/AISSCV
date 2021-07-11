@@ -389,6 +389,8 @@ def add_pipe_args(parser: argparse.ArgumentParser):
                         help='Whether the images are colored or greyscaled')
     parser.add_argument('-occl', default=False, action='store_true',
                         help='Enable occlusion')
+    parser.add_argument('-incl_no_label', default=False, action='store_true',
+                        help='Include no label images')
     parser.add_argument('-yolo_cfg', metavar='yolo cfg file', type=str, default='../model/darknet_cfgs/yolov4-tiny-custom.cfg',
                         help='Original yolovX config file that is beeing modified')
     parser.add_argument('-batch_size', metavar='max batch size', type=int, default=3000,
@@ -538,3 +540,31 @@ def log(msg: str, log_level: str = "debug"):
 
 def get_binary(probability: float) -> bool:
     return generator2.random() <= probability
+
+
+def read_nolabel_images(config: PipeConfig) -> ImageDataFrame:
+    """Read no label images and return them in a ImageDataFrame"""
+    img_class = "No_Label"
+    df = ImageDataFrame()
+    jpeg_images = config.input_folder.glob("%s_*.jpeg" % img_class)
+
+    for img in jpeg_images:
+        pipePrint("Renaming JPEG %s" % img.name)
+        img.rename(img.stem+".jpg")
+
+    images = config.input_folder.glob("%s_*.jpg" % img_class)
+
+    for img_path in images:
+        if not img_path.is_file:
+            continue
+        # get the differnt absolute file paths
+        stem = img_path.stem
+        label_path = Path(img_path.parent, stem+".txt").absolute()
+
+        # add the row to df
+        df.addImg(
+            img_path=img_path,
+            label_path=label_path,
+            img_class=img_class
+        )
+    return df

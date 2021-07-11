@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ImageDataFrame import ImageDataFrame
 import re
-from util import augmentImage, clear_folder, count_lines, debugPrint, get_labels, infoPrint, pipePrint, mkdir
+from util import augmentImage, clear_folder, count_lines, debugPrint, get_labels, infoPrint, pipePrint, mkdir, read_nolabel_images
 from pathlib import Path
 import shutil
 from typing import TYPE_CHECKING
@@ -132,6 +132,7 @@ def readImages(config: PipeConfig, input: ImageDataFrame, testSize=0.2) -> Image
         "Soldat",
         "Studierendenwerk",
         "Waermflasche",
+        "No_Label"
     ]
     df = ImageDataFrame()
 
@@ -184,21 +185,24 @@ def resize_images(config: PipeConfig, input: ImageDataFrame) -> ImageDataFrame:
 
         cv2.imwrite(str(outputPath), resized_img)
         pipePrint("%s resized" % fileName)
-
+    # Remove No label images, as they should be in the split of the images in test or training data
+    # No label images will be later added to the training data
+    input.frame = input.frame[input.frame['class'] != "No_Label"]
     return input
 
 
 def kfold(config: PipeConfig, input: ImageDataFrame) -> list[ImageDataFrame]:
     """
         Performs a stratified kfold of the images in the ImageDataFrame based on the column 'class' (Y).
-        Each fold is added to a list of ImageDataFrames that will be passed on. 
+        Each fold is added to a list of ImageDataFrames that will be passed on.
         Each ImageDataFrame has  an additional colum: 'is_test' (bool).
     """
     X = input.frame.iloc[:, :-1]
     Y = input.frame.iloc[:, -1]  # last colum "class"
 
     # Create the k folds
-    skf = StratifiedKFold(n_splits=config.folds, shuffle=True, random_state=1)
+    skf = StratifiedKFold(n_splits=config.folds,
+                          shuffle=True, random_state=1)
     skf.get_n_splits(X, Y)
 
     output: list[ImageDataFrame] = []
@@ -214,12 +218,18 @@ def kfold(config: PipeConfig, input: ImageDataFrame) -> list[ImageDataFrame]:
         test_data: pd.DataFrame = pd.concat([X_test, Y_test], axis=1)
         train_data: pd.DataFrame = pd.concat([X_train, Y_train], axis=1)
 
+        # Include no label images again
+        if config.include_no_label:
+            no_label_img = read_nolabel_images(config)
+            train_data = pd.concat([train_data, no_label_img.frame]).sample(
+                frac=1, random_state=1)
+
         # Add the is_test boolean
         test_data['is_test'] = True
         train_data['is_test'] = False
 
         # Create the full DataFrame thats passed onwards
-        full_data = pd.concat([test_data, train_data])
+        full_data = pd.concat([test_data, train_data]).reset_index(drop=True)
         full_data.to_csv(str(Path(run.output_folder, name+".csv")))
 
         output.append(ImageDataFrame(full_data))
@@ -246,16 +256,22 @@ def split(config: PipeConfig, input: ImageDataFrame, test_size: float = 0.2) -> 
     test_data: pd.DataFrame = pd.concat([X_test, Y_test], axis=1)
     train_data: pd.DataFrame = pd.concat([X_train, Y_train], axis=1)
 
+    # Include no label images again
+    if config.include_no_label:
+        no_label_img = read_nolabel_images(config)
+        train_data = pd.concat([train_data, no_label_img.frame]).sample(
+            frac=1, random_state=1)
+
     # Add the is_test boolean
     test_data['is_test'] = True
     train_data['is_test'] = False
 
     # Create the full DataFrame thats passed onwards
-    full_data = pd.concat([test_data, train_data])
+    full_data = pd.concat([test_data, train_data]).reset_index(drop=True)
     full_data.to_csv(str(Path(config.output_folder, "full_data.csv")))
 
     output = [ImageDataFrame(full_data)]
-
+    print(output[0].frame)
     return output
 
 
@@ -313,8 +329,8 @@ def augment(config: PipeConfig, input: list[ImageDataFrame]) -> list[ImageDataFr
             else:
                 image = cv2.imread(str(input_path_img), cv2.IMREAD_GRAYSCALE)
 
-            # Apply augmentation if the image is not a test image
-            if not is_test:
+            # Apply augmentation if the image is not a test image and not a no label image
+            if not is_test and not class_name == "No_Label":
                 # Read in label
                 labels = get_labels(input_path_txt)
                 number_of_images_processed += config.number_of_augmentations

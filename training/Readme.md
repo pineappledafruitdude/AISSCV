@@ -15,6 +15,7 @@ Image: `eu.gcr.io/delta-basis-318917/aisscv-dynamic-cfg:1.0`
 | --augmentations | `int`  |  `10`   | Number of augmentations to perform per train image                                            |
 | --transform     | `int`  |   `1`   | Transformations function to be applied. Either `1`or `2`                                      |
 | --occlude       | `bool` |         | Add the occlude flag if you want images to be occluded                                        |
+| --incl_no_label | `bool` |         | Add the incl_no_label flag if you want no label images to be added to training data           |
 
 ## Submitting a Job
 

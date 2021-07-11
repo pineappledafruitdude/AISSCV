@@ -18,7 +18,8 @@ def main(args):
         yolo_cfg=args.yolo_cfg,
         max_batch_size=args.batch_size,
         folds=args.f,
-        occlude=args.occl
+        occlude=args.occl,
+        include_no_label=args.incl_no_label
     )
     # Initialize Pipeline
     pipe = Pipeline(config=config)
