@@ -372,12 +372,12 @@ def count_lines(txt_file: Path) -> int:
     return lines
 
 
-def add_pipe_args(parser: argparse.ArgumentParser):
+def add_pipe_args(parser: argparse.ArgumentParser, name_required: bool = True):
     """Add the args for the pipeline to the provided parser"""
 
     parser.add_argument('-f', metavar='number of folds', type=int, default=1,
                         help='Amount of folds to be created')
-    parser.add_argument('-n', metavar='name', required=True, type=str,
+    parser.add_argument('-n', metavar='name', required=name_required, type=str,
                         help='Name of this pipeline run.')
     parser.add_argument('-i', metavar='input folder', type=str, default='./data',
                         help='Path where the original images are stored. Default to "./data"')
