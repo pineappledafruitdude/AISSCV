@@ -12,7 +12,7 @@ def main(args):
         resized_img_size=600,
         final_img_size=416,
         number_of_augmentations=args.nbr_augment,
-        color=True,
+        color=args.c,
         transform=args.t,
         classes_txt=args.cls,
         yolo_cfg=args.yolo_cfg,
