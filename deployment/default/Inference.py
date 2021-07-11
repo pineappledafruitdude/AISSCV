@@ -12,7 +12,7 @@ from Video import bgr8_to_jpeg
 
 class Inference:
 
-    def __init__(self, videoCapture: cv2.VideoCapture, videoOutput, configFilePath: str, dataFilePath: str, weightsFilePath: str, batch_size: str = 1, saveVideo: bool = False, out_filename: str = None):
+    def __init__(self, videoCapture: cv2.VideoCapture, videoOutput, configFilePath: str, dataFilePath: str, weightsFilePath: str, batch_size: str = 1, saveVideo: bool = False, out_filename: str = None, border: bool = False, thresh: float = 0.7):
         # Is the inference active
         self.running = False
 
@@ -36,6 +36,9 @@ class Inference:
         )
         self.darknet_width = darknet.network_width(self.network)
         self.darknet_height = darknet.network_height(self.network)
+
+        self.border = border
+        self.thresh = thresh
 
         # Initialize Threads
         self.video_capture_thread = Thread(target=self.video_capture, args=(
@@ -140,6 +143,17 @@ class Inference:
             ret, frame = self.cap.read()
             if not ret:
                 break
+            if self.border:
+                bordersize = 40
+                frame = cv2.copyMakeBorder(
+                    frame,
+                    top=bordersize,
+                    bottom=bordersize,
+                    left=bordersize,
+                    right=bordersize,
+                    borderType=cv2.BORDER_CONSTANT,
+                    value=[0, 0, 0]
+                )
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame_resized = cv2.resize(frame_rgb, (self.darknet_width, self.darknet_height),
                                        interpolation=cv2.INTER_LINEAR)
@@ -156,7 +170,7 @@ class Inference:
             darknet_image = darknet_image_queue.get()
             prev_time = time.time()
             detections = darknet.detect_image(
-                self.network, self.class_names, darknet_image, thresh=0.25)
+                self.network, self.class_names, darknet_image, thresh=self.thresh)
             detections_queue.put(detections)
             fps = int(1/(time.time() - prev_time))
             fps_queue.put(fps)
