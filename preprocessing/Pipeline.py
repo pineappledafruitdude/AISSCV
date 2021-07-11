@@ -101,8 +101,9 @@ class PipeConfig:
     transform: Compose
     transform_nbr: int
     occlude: bool
+    include_no_label: bool
 
-    def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: int, classes_txt: str, yolo_cfg: str, max_batch_size: int, folds: int, occlude: bool) -> None:
+    def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: int, classes_txt: str, yolo_cfg: str, max_batch_size: int, folds: int, occlude: bool, include_no_label: bool) -> None:
         """
             Pipeline configuration class
 
@@ -120,6 +121,7 @@ class PipeConfig:
                 max_batch_size (int): Max batch size of the yolo.cfg file
                 folds (int): Number of folds
                 occlude (bool): Should the images be occluded?
+                include_no_label (bool): Should the no label images be added to the training dataset?
         """
         self.input_folder = Path(input_folder).absolute()
         self.output_folder = Path(output_folder, name).absolute()
@@ -144,6 +146,7 @@ class PipeConfig:
         self.max_batch_size = max_batch_size
         self.folds = folds
         self.occlude = occlude
+        self.include_no_label = include_no_label
 
     def to_dict(self) -> dict:
         """Dictionary represantation of the config"""
