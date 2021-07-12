@@ -8,13 +8,9 @@ ARG GPU=1
 ARG CUDNN=1
 ARG CUDNN_HALF=0
 ARG OPENCV=1
-ARG COLOR=false
-ARG BATCH_SIZE=3000
-ARG FOLDS=1
-ARG NBR_AUGMENT=10
 
 
-# To save you a headache
+# Set environment variables
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
@@ -36,7 +32,7 @@ RUN python3.8 -m pip install albumentations==1.0.0 matplotlib==3.4.2 numpy==1.21
 # Create working directory 
 WORKDIR /
 
-# Fetch Repo
+# Fetch Darknet
 RUN git clone https://github.com/AlexeyAB/darknet.git 
 WORKDIR /darknet
 RUN export PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
@@ -72,9 +68,5 @@ RUN echo '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 WORKDIR /
 COPY start.sh /scripts/start.sh
 RUN ["chmod", "+x", "/scripts/start.sh"]
-ENTRYPOINT ["sh","/scripts/start.sh", "-darknet=/darknet", "-path=/"]
 # Sets up the entry point to invoke the trainer.
-# CMD export RUN_NAME=$(date +%Y%m%d_%H%M%S) && \
-#     git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv && \
-#     cd /aisscv/preprocessing && \
-#     python3.8 run_train.py -n=${RUN_NAME} -o "/aisscv/model" -c=1 -f=2 -darknet "/darknet"
+ENTRYPOINT ["sh","/scripts/start.sh", "-darknet=/darknet", "-path=/"]
