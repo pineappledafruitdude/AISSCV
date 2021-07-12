@@ -214,8 +214,8 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
         transformed_df.iloc[:, 0] = transformed_df.iloc[:, 5]
         transformed_df = transformed_df.drop(4, axis=1)
         transformed_df = transformed_df.astype('string')
-        if config.occlude and get_binary(0.75):
-            transformed_image = occlude(transformed_image, 3)
+        if config.occlude and get_binary(0.5):
+            transformed_image = occlude(transformed_image)
         # Save image to file
         cv2.imwrite(str(output_img), transformed_image)
         # Save labels to file
@@ -334,8 +334,11 @@ def create_transform_2(config: PipeConfig) -> Compose:
     return transform
 
 
-def occlude(img, number_of_squares: int = 5):
-    """Add black squares randomly in front of the image. Idea based on the DropBlock method"""
+def occlude(img, number_of_squares: int = 3):
+    """
+    Randomly cutout black squares. Idea based on the cutout method:
+    https://arxiv.org/abs/1708.04552
+    """
     masked_image = img
 
     for i in range(number_of_squares):
@@ -343,8 +346,8 @@ def occlude(img, number_of_squares: int = 5):
         mask = np.zeros(img.shape, dtype=np.uint8)
         mask = 255 - mask
 
-        width = generator1.uniform(0.1, 0.4)
-        height = generator1.uniform(0.1, 0.4)
+        width = generator1.uniform(0.1, 0.35)
+        height = generator1.uniform(0.1, 0.35)
 
         position_x = abs(generator1.random()-width)
         position_y = abs(generator1.random()-height)
