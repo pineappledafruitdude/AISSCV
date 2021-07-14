@@ -10,7 +10,8 @@ MAP = {
     "nbr_augment": "--augmentations=",
     "t": "--transform=",
     "occl": "--occlude=",
-    "incl_no_label": "--incl_no_label="
+    "incl_no_label": "--incl_no_label=",
+    "is_final": "--is_final"
 }
 DEFAULT = {
     "c": False,
@@ -19,7 +20,8 @@ DEFAULT = {
     "nbr_augment": 10,
     "t": 1,
     "occl": False,
-    "incl_no_label": False
+    "incl_no_label": False,
+    "is_final": False,
 }
 
 
