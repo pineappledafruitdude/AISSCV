@@ -59,6 +59,7 @@ The following arguments can be passed when calling `python3 run_pipe.py -n "Name
 | -batch_size    | `int`  | `3000`                                         | Batch size              | Max batch size that is saved to the yolovX.cfg file used for training                                                                                                        |
 | -nbr_augment   | `int`  | `10`                                           | Number of augmentations | Number of augmentations to perform per train image                                                                                                                           |
 | -t             | `int`  | `1`                                            | Transform function      | Which type of transform function to be applied: Number 1 or Number 2                                                                                                         |
+| -is_final      | `bool` |                                                | Final Model             | Add the is_final flag if you want all images to be used for training the final model                                                                                         |
 
 ## Other options
 

@@ -19,7 +19,8 @@ def main(args):
         max_batch_size=args.batch_size,
         folds=args.f,
         occlude=args.occl,
-        include_no_label=args.incl_no_label
+        include_no_label=args.incl_no_label,
+        is_final=args.is_final
     )
     # Initialize Pipeline
     pipe = Pipeline(config=config)

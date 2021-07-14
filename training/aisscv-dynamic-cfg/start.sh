@@ -9,6 +9,7 @@ NBR_AUGMENTATIONS=10
 DARKNET="/darknet"
 TRANSFORM=1
 INCL_NO_LABEL=false
+IS_FINAL=false
 
 for arg in "$@"
 do
@@ -31,6 +32,10 @@ do
         ;;
         -no_label|--incl_no_label)
         INCL_NO_LABEL=true
+        shift # Remove --initialize from processing
+        ;;
+        -final|--is_final)
+        IS_FINAL=true
         shift # Remove --initialize from processing
         ;;
         -b=*|--batch_size=*)
@@ -72,6 +77,11 @@ fi
 if $INCL_NO_LABEL
 then
   COMMANDS="$COMMANDS -incl_no_label"
+fi
+
+if $IS_FINAL
+then
+  COMMANDS="$COMMANDS -is_final"
 fi
 
 echo "Running script with: $COMMANDS"

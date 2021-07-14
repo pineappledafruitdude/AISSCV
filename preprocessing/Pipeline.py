@@ -102,8 +102,9 @@ class PipeConfig:
     transform_nbr: int
     occlude: bool
     include_no_label: bool
+    is_final: bool
 
-    def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: int, classes_txt: str, yolo_cfg: str, max_batch_size: int, folds: int, occlude: bool, include_no_label: bool) -> None:
+    def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: int, classes_txt: str, yolo_cfg: str, max_batch_size: int, folds: int, occlude: bool, include_no_label: bool, is_final: bool) -> None:
         """
             Pipeline configuration class
 
@@ -122,6 +123,7 @@ class PipeConfig:
                 folds (int): Number of folds
                 occlude (bool): Should the images be occluded?
                 include_no_label (bool): Should the no label images be added to the training dataset?
+                is_final (bool): Is this the final run? If yes all images will be used for training.
         """
         self.input_folder = Path(input_folder).absolute()
         self.output_folder = Path(output_folder, name).absolute()
@@ -147,6 +149,7 @@ class PipeConfig:
         self.folds = folds
         self.occlude = occlude
         self.include_no_label = include_no_label
+        self.is_final = is_final
 
     def to_dict(self) -> dict:
         """Dictionary represantation of the config"""

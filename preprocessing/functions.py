@@ -68,7 +68,8 @@ def create_darknet_data(config: PipeConfig, input: ImageDataFrame):
         with open(run.darknet_data, 'a') as f:
             f.write('classes = %i %s' % (num_classes, os.linesep))
             f.write('train = %s %s' % (run.train_txt, os.linesep))
-            f.write('valid = %s %s' % (run.test_txt, os.linesep))
+            if not config.is_final:
+                f.write('valid = %s %s' % (run.test_txt, os.linesep))
             f.write('names = %s %s' % (run.classes_txt, os.linesep))
             f.write('backup = %s %s' % (run.weights_folder, os.linesep))
 
@@ -197,6 +198,9 @@ def kfold(config: PipeConfig, input: ImageDataFrame) -> list[ImageDataFrame]:
         Each fold is added to a list of ImageDataFrames that will be passed on.
         Each ImageDataFrame has  an additional colum: 'is_test' (bool).
     """
+    if config.is_final:
+        raise Exception("You can't do a kfold on the final training")
+
     X = input.frame.iloc[:, :-1]
     Y = input.frame.iloc[:, -1]  # last colum "class"
 
@@ -244,6 +248,10 @@ def split(config: PipeConfig, input: ImageDataFrame, test_size: float = 0.2) -> 
         according to the specified test_size.
         The full ImageDataFrame will be passed on with an additional colum: 'is_test' (bool)
     """
+    if config.is_final:
+        output = input
+        output.frame['is_test'] = False
+        return [output]
 
     X = input.frame.iloc[:, :-1]
     Y = input.frame.iloc[:, -1]  # last colum "class"

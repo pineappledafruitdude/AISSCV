@@ -402,6 +402,8 @@ def add_pipe_args(parser: argparse.ArgumentParser, name_required: bool = True):
                         help='Number of augmentations to perform per train image')
     parser.add_argument('-t', metavar='transformation function', type=int, default=1,
                         help='Which transformation function should be used for the augmentation. Number 1 or 2')
+    parser.add_argument('-is_final', default=False, action='store_true',
+                        help='Train with all images for the final run?')
 
 
 def add_train_args(parser: argparse.ArgumentParser):
