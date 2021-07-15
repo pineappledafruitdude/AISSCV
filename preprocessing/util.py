@@ -184,37 +184,40 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
             transformed_image = transformed['image']
             transformed_image = np.asarray(transformed_image)
             transformed_bboxes = transformed['bboxes'].copy()
-
-            if(transformed_bboxes != []):
+            # Break loop in case of valid bboxes or no label images(here augmentaiton needs only to be done once)
+            if(transformed_bboxes != [] or class_name == "No_Label"):
                 break
+        # only handle the new bboxes for images not of class 'No_Label'
+        if class_name != "No_Label":
+            transformed_bboxes = transformed['bboxes'].copy()
 
-        transformed_bboxes = transformed['bboxes'].copy()
+            t_img = transformed_image.copy()
+            transformed['bboxes'].clear()
 
-        t_img = transformed_image.copy()
-        transformed['bboxes'].clear()
+            # Save augmented images and bounding boxes
 
-        # Save augmented images and bounding boxes
+            inv_d = inverse_mapping(DICT)
 
-        inv_d = inverse_mapping(DICT)
+            transformed_df = pd.DataFrame(transformed_bboxes)
+            # ensure transformed_bboxes is empty for next iteration
+            transformed_bboxes = transformed_bboxes.clear()
+            # prep DataFrame for saving labels in correct yolo format
+            # print(transformed_df)
+            transformed_df.iloc[:, 4] = transformed_df.iloc[:, 4].map(inv_d)
+            transformed_df.insert(loc=0, column='ident', value=1)
+            transformed_df.iloc[:, 0] = transformed_df.iloc[:, 5]
+            transformed_df = transformed_df.drop(4, axis=1)
+            transformed_df = transformed_df.astype('string')
+            if config.occlude and get_binary(0.5):
+                transformed_image = occlude(transformed_image)
 
-        transformed_df = pd.DataFrame(transformed_bboxes)
-        # ensure transformed_bboxes is empty for next iteration
-        transformed_bboxes = transformed_bboxes.clear()
-        # prep DataFrame for saving labels in correct yolo format
-        # print(transformed_df)
-        transformed_df.iloc[:, 4] = transformed_df.iloc[:, 4].map(inv_d)
-        transformed_df.insert(loc=0, column='ident', value=1)
-        transformed_df.iloc[:, 0] = transformed_df.iloc[:, 5]
-        transformed_df = transformed_df.drop(4, axis=1)
-        transformed_df = transformed_df.astype('string')
-        if config.occlude and get_binary(0.5):
-            transformed_image = occlude(transformed_image)
+            # Save labels to file
+            np.savetxt(str(output_txt), transformed_df.values, fmt='%s')
+            # ensure df is cleared for next iteration
+            transformed_df = transformed_df[0:0]
+
         # Save image to file
         cv2.imwrite(str(output_img), transformed_image)
-        # Save labels to file
-        np.savetxt(str(output_txt), transformed_df.values, fmt='%s')
-        # ensure df is cleared for next iteration
-        transformed_df = transformed_df[0:0]
 
         # Add augmented img to df
         output_df.addImg(
