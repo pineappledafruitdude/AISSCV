@@ -193,13 +193,6 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
         t_img = transformed_image.copy()
         transformed['bboxes'].clear()
 
-        # Potentially visualize bbox in output image, disabled in final output as no
-
-        # Uncomment to Get BBOXES and Text on Images when saving them
-
-        # for bbox in transformed_bboxes:
-        #   t_img=visualize_bbox(transformed_image, bbox[0:4], bbox[-1], color=BOX_COLOR, thickness=2)
-
         # Save augmented images and bounding boxes
 
         inv_d = inverse_mapping(DICT)
