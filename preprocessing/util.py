@@ -216,6 +216,10 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
             # ensure df is cleared for next iteration
             transformed_df = transformed_df[0:0]
 
+        elif class_name == "No_Label":
+            # Create empty transformed txt
+            touch(output_txt)
+
         # Save image to file
         cv2.imwrite(str(output_img), transformed_image)
 
@@ -569,3 +573,9 @@ def read_nolabel_images(config: PipeConfig) -> ImageDataFrame:
             img_class=img_class
         )
     return df
+
+
+def touch(path: Path):
+    """Create an empty file"""
+    with open(path, 'a'):
+        os.utime(path, None)

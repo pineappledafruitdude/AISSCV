@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 import os
+from util import touch
 
 
 def main(path: Path):
@@ -8,11 +9,6 @@ def main(path: Path):
     for img in jpg_images:
         txt = Path(path, "%s.txt" % img.stem)
         touch(txt)
-
-
-def touch(path: Path):
-    with open(path, 'a'):
-        os.utime(path, None)
 
 
 if __name__ == "__main__":
