@@ -1,44 +1,122 @@
 from ctypes import *
+from Video import gstreamer_pipeline
 import random
 import os
 import cv2
 import time
 import darknet
 import argparse
-from threading import Thread, enumerate
+from threading import Thread, currentThread
 from queue import Queue
 from Video import bgr8_to_jpeg
+from pathlib import Path
+import ipywidgets
+from IPython.display import display
 
 
 class Inference:
 
-    def __init__(self, videoCapture: cv2.VideoCapture, videoOutput, configFilePath: str, dataFilePath: str, weightsFilePath: str, batch_size: str = 1, saveVideo: bool = False, out_filename: str = None, border: bool = False, thresh: float = 0.7):
+    def __init__(self, video: str, videoOutput, configFilePath: str, dataFilePath: str, weightsFilePath: str, border: bool = False, thresh: float = 0.7):
+        """Inference class
+
+        Args:
+            video (str): Either 'camera' or path to a video file
+            videoOutput (any): Jupyter video widget
+            configFilePath (str): Path to yolo.cfg
+            dataFilePath (str): Path to darknet.data
+            weightsFilePath (str): Path to yolo weights file
+            border (bool, optional): Draw a black border around the image. Defaults to False.
+            thresh (float, optional): Inference score threshold. Defaults to 0.7.
+        """
         # Is the inference active
         self.running = False
+        self.video = video
 
-        self.cap = videoCapture
         self.frame_queue = Queue()
         self.darknet_image_queue = Queue(maxsize=1)
         self.detections_queue = Queue(maxsize=1)
         self.fps_queue = Queue(maxsize=1)
 
-        # Output (widget & file)
+        # Output (widget)
         self.videoOutput = videoOutput
-        self.saveVideo = saveVideo
-        self.out_filename = out_filename
 
         # Initialize Darknet
+        if not Path(configFilePath).exists():
+            raise Exception("Yolo config file not found")
+        if not Path(dataFilePath).exists():
+            raise Exception("Yolo config file not found")
+        if not Path(weightsFilePath).exists():
+            raise Exception("Yolo config file not found")
+
         self.network, self.class_names, self.class_colors = darknet.load_network(
             configFilePath,
             dataFilePath,
             weightsFilePath,
-            batch_size
+            1
         )
         self.darknet_width = darknet.network_width(self.network)
         self.darknet_height = darknet.network_height(self.network)
 
         self.border = border
         self.thresh = thresh
+
+        # Initialize button widgets
+        self.start_button = ipywidgets.Button(
+            description='Start',
+            disabled=False,
+            button_style='success',
+            tooltip='Click me',
+            icon='check'
+        )
+
+        self.stop_button = ipywidgets.Button(
+            description='Stop',
+            disabled=False,
+            button_style='danger',
+            tooltip='Click me',
+            icon='stop'
+        )
+        self.start_button.on_click(self.startInference)
+        self.stop_button.on_click(self.stopInference)
+
+        # Initialize image widget
+        self.image_widget = ipywidgets.Image(format='jpeg')
+        self.startCamera()
+        if self.cap.isOpened():
+            _, image = self.cap.read()
+            self.cap.release()
+            self.image_widget.value = bgr8_to_jpeg(image)
+
+        # Display all widgets
+        display(self.start_button)
+        display(self.stop_button)
+        display(self.image_widget)
+
+    def startCamera(self):
+        """Start a Video capture session either from camera or video file"""
+        if self.video == "camera":
+            self.cap = cv2.VideoCapture(gstreamer_pipeline(
+                capture_width=416, capture_height=416, flip_method=0), cv2.CAP_GSTREAMER)
+        else:
+            video_path = Path(self.video)
+            if not video_path.exists():
+                raise Exception("Video file not found")
+            self.cap = cv2.VideoCapture(str(video_path))
+
+    def startInference(self, *args):
+        """Start the inference
+
+        Args:
+            button: Jupyter button
+        """
+        if self.running:
+            print("Already running")
+            return
+        # Initialize capture session
+        self.startCamera()
+        if not self.cap.isOpened():
+            print("Cant open video")
+            return
 
         # Initialize Threads
         self.video_capture_thread = Thread(target=self.video_capture, args=(
@@ -48,32 +126,29 @@ class Inference:
         self.drawing_thread = Thread(target=self.drawing, args=(
             self.frame_queue, self.detections_queue, self.fps_queue))
 
-    def startInference(self, button):
-        if self.running:
-            print("Already running")
-            return
-        if not self.cap.isOpened():
-            print("Cant open video")
-            return
-        self.running = True
         self.video_capture_thread.start()
         self.inference_thread.start()
         self.drawing_thread.start()
 
+        self.running = True
+
         print("Running")
 
-    def stopInference(self, button):
+    def stopInference(self, *args):
+        """Stop the inference
+
+        Args:
+            button: Jupyter button
+        """
         if not self.running:
             print("Not running")
             return
 
+        self.video_capture_thread.running = False
+        self.inference_thread.running = False
+        self.drawing_thread.running = False
+        self.cap.release()
         self.running = False
-        self.video_capture_thread = Thread(target=self.video_capture, args=(
-            self.frame_queue, self.darknet_image_queue))
-        self.inference_thread = Thread(target=self.inference, args=(
-            self.darknet_image_queue, self.detections_queue, self.fps_queue))
-        self.drawing_thread = Thread(target=self.drawing, args=(
-            self.frame_queue, self.detections_queue, self.fps_queue))
         print("Stopped")
 
     def str2int(self, video_path):
@@ -139,7 +214,8 @@ class Inference:
         return bbox_cropping
 
     def video_capture(self, frame_queue, darknet_image_queue):
-        while self.cap.isOpened():
+        t = currentThread()
+        while getattr(t, "running", True):
             ret, frame = self.cap.read()
             if not ret:
                 break
@@ -163,10 +239,10 @@ class Inference:
             darknet.copy_image_from_bytes(
                 img_for_detect, frame_resized.tobytes())
             darknet_image_queue.put(img_for_detect)
-        self.cap.release()
 
     def inference(self, darknet_image_queue, detections_queue, fps_queue):
-        while self.cap.isOpened():
+        t = currentThread()
+        while getattr(t, "running", True):
             darknet_image = darknet_image_queue.get()
             prev_time = time.time()
             detections = darknet.detect_image(
@@ -177,17 +253,12 @@ class Inference:
             print("FPS: {}".format(fps))
             darknet.print_detections(detections, "store_true")
             darknet.free_image(darknet_image)
-        self.cap.release()
 
     def drawing(self, frame_queue, detections_queue, fps_queue):
+        t = currentThread()
         random.seed(3)  # deterministic bbox colors
 
-        # Save the video if necessary
-        if self.saveVideo:
-            video = self.set_saved_video(
-                self.cap, self.out_filename, (self.darknet_width, self.darknet_height))
-
-        while self.cap.isOpened():
+        while getattr(t, "running", True):
             # Break if the inference is not be active (anymore)
             frame = frame_queue.get()
             detections = detections_queue.get()
@@ -202,17 +273,5 @@ class Inference:
                 image = darknet.draw_boxes(
                     detections_adjusted, frame, self.class_colors)
 
-                # Save to video if desired
-                if self.saveVideo:
-                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                    video.write(image)
-
                 # Output the inferred image
-                self.videoOutput.value = bgr8_to_jpeg(image)
-
-                if not self.running:
-                    break
-
-        self.cap.release()
-        if self.saveVideo:
-            video.release()
+                self.image_widget.value = bgr8_to_jpeg(image)
