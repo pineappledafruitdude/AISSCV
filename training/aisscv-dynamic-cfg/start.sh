@@ -16,27 +16,27 @@ do
     case $arg in
         -path=*|--path=*)
         CURRENT_PATH="${arg#*=}"
-        shift # Remove argument value from processing
+        shift # Remove argument from processing
         ;;
         -darknet=*|--darknet_path=*)
         DARKNET="${arg#*=}"
-        shift # Remove argument value from processing
+        shift # Remove argument from processing
         ;;
         -c|--color)
         COLOR=true
-        shift # Remove --initialize from processing
+        shift # Remove argument from processing
         ;;
         -occl|--occlude)
         OCCLUDE=true
-        shift # Remove --initialize from processing
+        shift # Remove argument from processing
         ;;
         -no_label|--incl_no_label)
         INCL_NO_LABEL=true
-        shift # Remove --initialize from processing
+        shift # Remove argument from processing
         ;;
         -final|--is_final)
         IS_FINAL=true
-        shift # Remove --initialize from processing
+        shift # Remove argument from processing
         ;;
         -b=*|--max_batches=*)
         MAX_BATCHES="${arg#*=}"
@@ -44,19 +44,19 @@ do
         ;;
         -f=*|--folds=*)
         FOLDS="${arg#*=}"
-        shift # Remove argument name from processing
+        shift # Remove argument from processing
         ;;
         -t=*|--transform=*)
         TRANSFORM="${arg#*=}"
-        shift # Remove argument name from processing
+        shift # Remove argument from processing
         ;;
         -n=*|--name=*)      
         NAME="${arg#*=}"
-        shift # Remove argument name from processing
+        shift # Remove argument from processing
         ;;
         -a=*|--augmentations=*)
         NBR_AUGMENTATIONS="${arg#*=}"
-        shift # Remove argument name from processing
+        shift # Remove argument from processing
         ;;
     esac
 done
