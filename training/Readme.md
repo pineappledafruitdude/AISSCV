@@ -2,7 +2,7 @@
 
 Training is done via google cloud AI Platform
 <br>
-Image: `eu.gcr.io/delta-basis-318917/aisscv-dynamic-cfg:1.0`
+Image: `eu.gcr.io/delta-basis-318917/aisscv-dynamic-cfg:1.x`
 
 ## Arguments for Training
 
@@ -24,7 +24,7 @@ Image: `eu.gcr.io/delta-basis-318917/aisscv-dynamic-cfg:1.0`
 3. Add new job with custom code
 4. Click on the select master image button<br>
    <img src="./doc_img/add_job_1.png" width=400 style="margin-top:20px; margin-bottom: 20px" />
-5. Select the Image `eu.gcr.io/delta-basis-318917/aisscv-dynamic-cfg:1.0`<br>
+5. Select the latest Image `eu.gcr.io/delta-basis-318917/aisscv-dynamic-cfg:1.x`<br>
    <img src="./doc_img/add_job_2.png" width=400 style="margin-top:20px; margin-bottom: 20px" />
 6. Click on next
 7. Add the parameters show above. Each in one line: e.g
