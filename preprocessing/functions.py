@@ -337,8 +337,9 @@ def augment(config: PipeConfig, input: list[ImageDataFrame]) -> list[ImageDataFr
             else:
                 image = cv2.imread(str(input_path_img), cv2.IMREAD_GRAYSCALE)
 
-            # Apply augmentation if the image is not a test image and not a no label image
-            if not is_test and not class_name == "No_Label":
+            #
+            # Apply augmentation if the image is not a test image
+            if not is_test:
                 # Read in label
                 labels = get_labels(input_path_txt)
                 number_of_images_processed += config.number_of_augmentations

@@ -1,3 +1,4 @@
+
 FROM nvcr.io/nvidia/l4t-ml:r32.5.0-py3
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -17,16 +18,7 @@ RUN sed -i 's/CUDNN=0/CUDNN=1/' ./darknet/Makefile
 RUN sed -i 's/OPENCV=0/OPENCV=1/' ./darknet/Makefile
 RUN sed -i 's/LIBSO=0/LIBSO=1/' ./darknet/Makefile
 WORKDIR /darknet
-RUN make && \
-    wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Advanced%20Inference%20Model.ipynb && \
-    wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Inference.py && \
-    wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Video.py
-WORKDIR /
-RUN mkdir model
-WORKDIR /model
-RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/model/run_3/our-yolov4-tiny-custom.cfg
-RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/model/run_3/darknet.data
-RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/model/run_3/weights/our-yolov4-tiny-custom_final.weights
+RUN make
 #
 # Jetcam
 #
@@ -49,6 +41,21 @@ RUN node -v
 #
 RUN jupyter nbextension enable --py widgetsnbextension
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
+#
+# Add Inference related files
+#
+WORKDIR /darknet
+RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Advanced%20Inference%20Model.ipynb && \
+    wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Inference.py && \
+    wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/Video.py
+WORKDIR /
+RUN mkdir model
+WORKDIR /model
+RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/darknet.data
+RUN wget https://github.com/pineappledafruitdude/AISSCV/raw/main/deployment/default/classes.txt
+RUN wget https://raw.githubusercontent.com/pineappledafruitdude/AISSCV_results/master/final/run_1/yolo.cfg
+RUN wget https://github.com/pineappledafruitdude/AISSCV_results/raw/master/final/run_1/weights/yolo_final.weights
+
 WORKDIR /
 RUN mkdir data
 CMD jupyter lab --ip 0.0.0.0 --port 8888 --allow-root &> /var/log/jupyter.log

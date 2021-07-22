@@ -184,44 +184,44 @@ def augmentImage(config: PipeConfig, image, bboxes: List[str], output_path: Path
             transformed_image = transformed['image']
             transformed_image = np.asarray(transformed_image)
             transformed_bboxes = transformed['bboxes'].copy()
-
-            if(transformed_bboxes != []):
+            # Break loop in case of valid bboxes or no label images(here augmentaiton needs only to be done once)
+            if(transformed_bboxes != [] or class_name == "No_Label"):
                 break
+        # only handle the new bboxes for images not of class 'No_Label'
+        if class_name != "No_Label":
+            transformed_bboxes = transformed['bboxes'].copy()
 
-        transformed_bboxes = transformed['bboxes'].copy()
+            t_img = transformed_image.copy()
+            transformed['bboxes'].clear()
 
-        t_img = transformed_image.copy()
-        transformed['bboxes'].clear()
+            # Save augmented images and bounding boxes
 
-        # Potentially visualize bbox in output image, disabled in final output as no
+            inv_d = inverse_mapping(DICT)
 
-        # Uncomment to Get BBOXES and Text on Images when saving them
+            transformed_df = pd.DataFrame(transformed_bboxes)
+            # ensure transformed_bboxes is empty for next iteration
+            transformed_bboxes = transformed_bboxes.clear()
+            # prep DataFrame for saving labels in correct yolo format
+            # print(transformed_df)
+            transformed_df.iloc[:, 4] = transformed_df.iloc[:, 4].map(inv_d)
+            transformed_df.insert(loc=0, column='ident', value=1)
+            transformed_df.iloc[:, 0] = transformed_df.iloc[:, 5]
+            transformed_df = transformed_df.drop(4, axis=1)
+            transformed_df = transformed_df.astype('string')
+            if config.occlude and get_binary(0.5):
+                transformed_image = occlude(transformed_image)
 
-        # for bbox in transformed_bboxes:
-        #   t_img=visualize_bbox(transformed_image, bbox[0:4], bbox[-1], color=BOX_COLOR, thickness=2)
+            # Save labels to file
+            np.savetxt(str(output_txt), transformed_df.values, fmt='%s')
+            # ensure df is cleared for next iteration
+            transformed_df = transformed_df[0:0]
 
-        # Save augmented images and bounding boxes
+        elif class_name == "No_Label":
+            # Create empty transformed txt
+            touch(output_txt)
 
-        inv_d = inverse_mapping(DICT)
-
-        transformed_df = pd.DataFrame(transformed_bboxes)
-        # ensure transformed_bboxes is empty for next iteration
-        transformed_bboxes = transformed_bboxes.clear()
-        # prep DataFrame for saving labels in correct yolo format
-        # print(transformed_df)
-        transformed_df.iloc[:, 4] = transformed_df.iloc[:, 4].map(inv_d)
-        transformed_df.insert(loc=0, column='ident', value=1)
-        transformed_df.iloc[:, 0] = transformed_df.iloc[:, 5]
-        transformed_df = transformed_df.drop(4, axis=1)
-        transformed_df = transformed_df.astype('string')
-        if config.occlude and get_binary(0.5):
-            transformed_image = occlude(transformed_image)
         # Save image to file
         cv2.imwrite(str(output_img), transformed_image)
-        # Save labels to file
-        np.savetxt(str(output_txt), transformed_df.values, fmt='%s')
-        # ensure df is cleared for next iteration
-        transformed_df = transformed_df[0:0]
 
         # Add augmented img to df
         output_df.addImg(
@@ -260,76 +260,46 @@ def create_transform_1(config: PipeConfig) -> Compose:
 
 
 def create_transform_2(config: PipeConfig) -> Compose:
-    """Create the albumentation transform object"""
-    if not config.color:
-        # greyscale
-        transform = A.Compose(
-            [
+    """Create the albumentation transform object for simulated winter/spring conditions"""
+    # color only
+    transform = A.Compose(
+        [
+            A.RandomCrop(height=config.final_img_size,
+                         width=config.final_img_size, p=1),
+            A.FancyPCA(alpha=0.1, always_apply=False, p=0.5),
+            A.ColorJitter(brightness=0.3, contrast=0.2,
+                          saturation=0.15, hue=0.07, always_apply=False, p=0.75),
+            A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
+                               value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.75),
+            A.CLAHE(clip_limit=4.0, tile_grid_size=(
+                8, 8), always_apply=False, p=0.1),
+            A.Equalize(mode='cv', by_channels=True, mask=None,
+                       mask_params=(), p=0.7),
+            A.HorizontalFlip(p=0.3),
 
-                A.RandomCrop(height=config.final_img_size,
-                             width=config.final_img_size, p=1),
-                A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
-                                   value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, p=0.5),
-                A.CLAHE(clip_limit=4.0, tile_grid_size=(
-                    8, 8), p=0.1),
-                A.Equalize(mode='cv', by_channels=False, mask=None,
-                           mask_params=(), p=0.7),
-                A.HorizontalFlip(p=0.3),
+            A.OneOf([
+                A.Sharpen(alpha=(0.2, 0.3), lightness=(
+                    0.5, 0.7), p=0.1),
+                A.Blur(blur_limit=2, p=0.35),
+                A.MotionBlur(p=0.35)
+            ], p=1),
 
-                A.OneOf([
-                    A.Sharpen(alpha=(0.2, 0.3), lightness=(
-                        0.5, 0.7), p=0.05),
-                    A.Blur(blur_limit=2, p=0.2),
-                    A.MotionBlur(p=0.2)
+            A.OneOf([
+                A.RandomRain(slant_lower=-1, slant_upper=1, drop_length=2, drop_width=1, drop_color=(200, 200, 200),
+                             blur_value=5, brightness_coefficient=0.7, rain_type='drizzle', p=1),
+                A.RandomSnow(snow_point_lower=0.05, snow_point_upper=0.3,
+                             brightness_coeff=2.5,  p=1),
+                A.RandomFog(fog_coef_lower=0.3, fog_coef_upper=0.6,
+                            alpha_coef=0.08, p=1)
+            ], p=0.3),
 
-                ], p=0.5),
-                A.RandomBrightnessContrast(
-                    brightness_limit=0.1, contrast_limit=0.1,  always_apply=False, p=0.5),
-                A.RandomGamma(gamma_limit=(80, 120),
-                              p=0.5),
-                A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
-                             per_channel=False, p=0.5)
-            ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
-    else:
-        # color
-        transform = A.Compose(
-            [
-                A.RandomCrop(height=config.final_img_size,
-                             width=config.final_img_size, p=1),
-                A.FancyPCA(alpha=0.1, always_apply=False, p=0.5),
-                A.ColorJitter(brightness=0.3, contrast=0.2,
-                              saturation=0.15, hue=0.07, always_apply=False, p=0.75),
-                A.ShiftScaleRotate(shift_limit=0.0325, scale_limit=0.05, rotate_limit=25, interpolation=1, border_mode=4,
-                                   value=None, mask_value=None, shift_limit_x=None, shift_limit_y=None, always_apply=False, p=0.75),
-                A.CLAHE(clip_limit=4.0, tile_grid_size=(
-                    8, 8), always_apply=False, p=0.1),
-                A.Equalize(mode='cv', by_channels=True, mask=None,
-                           mask_params=(), p=0.7),
-                A.HorizontalFlip(p=0.3),
-
-                A.OneOf([
-                    A.Sharpen(alpha=(0.2, 0.3), lightness=(
-                        0.5, 0.7), p=0.05),
-                    A.Blur(blur_limit=2, p=0.2),
-                    A.MotionBlur(p=0.2)
-                ], p=1),
-
-                A.OneOf([
-                    A.RandomRain(slant_lower=-1, slant_upper=1, drop_length=2, drop_width=1, drop_color=(200, 200, 200),
-                                 blur_value=5, brightness_coefficient=0.7, rain_type='drizzle', p=1),
-                    A.RandomSnow(snow_point_lower=0.05, snow_point_upper=0.3,
-                                 brightness_coeff=2.5,  p=1),
-                    A.RandomFog(fog_coef_lower=0.3, fog_coef_upper=0.6,
-                                alpha_coef=0.08, p=1)
-                ], p=0.15),
-
-                A.RandomGamma(gamma_limit=(80, 120),
-                              p=0.5),
-                A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
-                             per_channel=False, p=0.3)
+            A.RandomGamma(gamma_limit=(80, 120),
+                          p=0.5),
+            A.GaussNoise(var_limit=(1.0, 5.0), mean=0,
+                         per_channel=False, p=0.3)
 
 
-            ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
+        ], bbox_params=A.BboxParams(format="yolo", min_visibility=0.2))
 
     return transform
 
@@ -573,3 +543,9 @@ def read_nolabel_images(config: PipeConfig) -> ImageDataFrame:
             img_class=img_class
         )
     return df
+
+
+def touch(path: Path):
+    """Create an empty file"""
+    with open(path, 'a'):
+        os.utime(path, None)
