@@ -77,13 +77,13 @@ def create_darknet_data(config: PipeConfig, input: ImageDataFrame):
 
 
 def create_yolo_cfg(config: PipeConfig, input: ImageDataFrame):
-    max_batch = config.max_batch_size
+    max_batches = config.max_batches
 
     num_classes = count_lines(config.org_classes_txt)
 
     # calculate the 2 steps values:
-    step1 = 0.8 * max_batch
-    step2 = 0.9 * max_batch
+    step1 = 0.8 * max_batches
+    step2 = 0.9 * max_batches
 
     num_filters = (num_classes + 5) * 3
     for run in config.runs:
@@ -94,7 +94,7 @@ def create_yolo_cfg(config: PipeConfig, input: ImageDataFrame):
 
         s = re.sub('channels=\d*', 'channels=' +
                    str(3 if config.color else 1), s)
-        s = re.sub('max_batches = \d*', 'max_batches = '+str(max_batch), s)
+        s = re.sub('max_batches = \d*', 'max_batches = '+str(max_batches), s)
         s = re.sub('steps=\d*,\d*', 'steps=' +
                    "{:.0f}".format(step1)+','+"{:.0f}".format(step2), s)
         s = re.sub('classes=\d*', 'classes='+str(num_classes), s)

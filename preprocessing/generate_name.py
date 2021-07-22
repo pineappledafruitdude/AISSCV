@@ -6,7 +6,7 @@ MAP = {
     "n": "--name",
     "c": "--color=",
     "f": "--folds=",
-    "batch_size": "--batch_size=",
+    "max_batches": "--max_batches=",
     "nbr_augment": "--augmentations=",
     "t": "--transform=",
     "occl": "--occlude=",
@@ -16,7 +16,7 @@ MAP = {
 DEFAULT = {
     "c": False,
     "f": 1,
-    "batch_size": 3000,
+    "max_batches": 3000,
     "nbr_augment": 10,
     "t": 1,
     "occl": False,

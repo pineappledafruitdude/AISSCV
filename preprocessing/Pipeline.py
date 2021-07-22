@@ -96,7 +96,7 @@ class PipeConfig:
     color: bool
     org_classes_txt: Path
     org_yolo_cfg: Path
-    max_batch_size: int
+    max_batches: int
     folds: int
     transform: Compose
     transform_nbr: int
@@ -104,7 +104,7 @@ class PipeConfig:
     include_no_label: bool
     is_final: bool
 
-    def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: int, classes_txt: str, yolo_cfg: str, max_batch_size: int, folds: int, occlude: bool, include_no_label: bool, is_final: bool) -> None:
+    def __init__(self, name: str, input_folder: str, output_folder: str, resized_img_size: int, final_img_size: int, number_of_augmentations: int, color: bool, transform: int, classes_txt: str, yolo_cfg: str, max_batches: int, folds: int, occlude: bool, include_no_label: bool, is_final: bool) -> None:
         """
             Pipeline configuration class
 
@@ -119,7 +119,7 @@ class PipeConfig:
                 transform (int): Which albumentation transform method should be used (Number 1 or Number 2)
                 classes_txt (str): Full path to the classes.txt file including the filename e.g. '/Path/classes.txt'
                 yolo_cfg (str): Full path to the yolo.cfg file including the filename e.g. '/Path/yolov4.cfg'. The file is copied and modified.
-                max_batch_size (int): Max batch size of the yolo.cfg file
+                max_batches (int): Max batches (iterations)
                 folds (int): Number of folds
                 occlude (bool): Should the images be occluded?
                 include_no_label (bool): Should the no label images be added to the training dataset?
@@ -145,7 +145,7 @@ class PipeConfig:
             self.transform = create_transform_2(self)
         self.org_classes_txt = Path(classes_txt).absolute()
         self.org_yolo_cfg = Path(yolo_cfg).absolute()
-        self.max_batch_size = max_batch_size
+        self.max_batches = max_batches
         self.folds = folds
         self.occlude = occlude
         self.include_no_label = include_no_label

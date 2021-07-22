@@ -2,7 +2,7 @@
 CURRENT_PATH="/"
 COLOR=false
 OCCLUDE=false
-BATCH_SIZE=3000
+MAX_BATCHES=3000
 FOLDS=1
 NAME=$(date +%Y%m%d_%H%M%S)
 NBR_AUGMENTATIONS=10
@@ -38,9 +38,9 @@ do
         IS_FINAL=true
         shift # Remove --initialize from processing
         ;;
-        -b=*|--batch_size=*)
-        BATCH_SIZE="${arg#*=}"
-        shift # Remove argument value from processing
+        -b=*|--max_batches=*)
+        MAX_BATCHES="${arg#*=}"
+        shift # Remove argument from processing
         ;;
         -f=*|--folds=*)
         FOLDS="${arg#*=}"
@@ -60,7 +60,7 @@ do
         ;;
     esac
 done
-COMMANDS="-n=$NAME -o /aisscv/model -f=$FOLDS -batch_size=$BATCH_SIZE -nbr_augment=$NBR_AUGMENTATIONS -darknet=$DARKNET -t=$TRANSFORM"
+COMMANDS="-n=$NAME -o /aisscv/model -f=$FOLDS -max_batches=$MAX_BATCHES -nbr_augment=$NBR_AUGMENTATIONS -darknet=$DARKNET -t=$TRANSFORM"
 
 (cd "$CURRENT_PATH" && git clone https://github.com/pineappledafruitdude/AISSCV.git aisscv)
 

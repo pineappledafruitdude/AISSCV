@@ -16,7 +16,7 @@ def main(args):
         transform=args.t,
         classes_txt=args.cls,
         yolo_cfg=args.yolo_cfg,
-        max_batch_size=args.batch_size,
+        max_batches=args.max_batches,
         folds=args.f,
         occlude=args.occl,
         include_no_label=args.incl_no_label,

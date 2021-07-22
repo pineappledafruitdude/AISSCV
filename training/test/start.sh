@@ -1,7 +1,7 @@
 #!/bin/bash
 CURRENT_PATH="/aisscv/preprocessing"
 COLOR=false
-BATCH_SIZE=3000
+MAX_BATCHES=3000
 FOLDS=1
 NAME=$(date +%Y%m%d_%H%M%S)
 NBR_AUGMENTATIONS=10
@@ -23,8 +23,8 @@ do
         COLOR=true
         shift # Remove --initialize from processing
         ;;
-        -b=*|--batch_size=*)
-        BATCH_SIZE="${arg#*=}"
+        -b=*|--max_batches=*)
+        MAX_BATCHES="${arg#*=}"
         shift # Remove argument value from processing
         ;;
         -f=*|--folds=*)
