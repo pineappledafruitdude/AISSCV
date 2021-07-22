@@ -363,7 +363,7 @@ Parameter Definition in *GCAIP*
 
 The approach of dockerized training in addition to the flexibility of automatically having the latest code version in the docker image, allowed us to efficiently conduct our training, alter our pipeline in case of errors with heavily reduced Docker-Image rebuilds. Furthermore, the ability to queue jobs enabled us to perform jobs overnight. Especially this wouldn't have been possible with *Google Colab*. Also in contrast to *Google Colab,* we practically had unlimited GPU runtime within our 250$ credit range, allowing us the verify our final image with 10-fold cross-validation that roughly took 12 hours.
 
-[Pipeline Parameters](https://www.notion.so/11195866e87b4701817753342e91b6e3)
+![doc_img/pipeline_params.png](doc_img/pipeline_params.png)
 
 ## 5.3 Docker File & Shell Script
 
