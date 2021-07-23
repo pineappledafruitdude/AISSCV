@@ -538,7 +538,7 @@ _Author: Christopher, Domenique_
 
 With our automated training pipeline at hand, we were able to conduct multiple experiments in which we varied various parameters. The different random generators used in the pipeline, for example for the augmentation or the k-fold split were seeded to ensure that differences in the performance metrics of the different runs originate from the parameter variation and not from a difference in the training data. With the seeds in place, running the pipeline multiple times independently with the same parameters results in the same output regarding the augmentations applied to the images as well as in the same folds.
 
-**For each experiment a 5-fold cross-validation with a threshold of 0.25 was applied. The results of the five runs are aggregated by using the mean value.**
+**For each experiment a 5-fold cross-validation with a threshold of 0.5 IoU was applied. The results of the five runs are aggregated by using the mean value.**
 
 ## 6.1 Experiments
 
